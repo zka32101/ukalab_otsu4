@@ -8,6 +8,7 @@ import 'memo_list_view.dart';
 import 'mock_report_view.dart';
 import 'mock_wrong_review_view.dart';
 import 'question_search_view.dart';
+import 'reading_list_view.dart';
 import 'recent_glossary_terms_view.dart';
 import 'streak_calendar_view.dart';
 import 'srs_calendar_view.dart';
@@ -80,6 +81,14 @@ class StudyToolsView extends StatelessWidget {
             description: '書き残したメモをまとめて見返せます',
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const MemoListView()),
+            ),
+          ),
+          _ToolTile(
+            icon: Icons.auto_stories_outlined,
+            title: '章ごとの解説読み物',
+            description: '法令・物理化学・性質消火を教科書のように体系的に読めます',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ReadingListView()),
             ),
           ),
           _ToolTile(

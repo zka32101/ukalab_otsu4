@@ -19,6 +19,7 @@ import 'memo_list_view.dart';
 import 'mock_wrong_review_view.dart';
 import 'practice_session_view.dart';
 import 'question_search_view.dart';
+import 'reading_list_view.dart';
 import 'storage_puzzle_view.dart';
 import 'study_tools_view.dart';
 import 'temperature_lab_view.dart';
@@ -107,6 +108,18 @@ class _StudyViewState extends ConsumerState<StudyView> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const StudyToolsView()),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.auto_stories_outlined),
+            title: const Text('章ごとの解説読み物'),
+            subtitle: const Text('法令・物理化学・性質消火を、教科書のように体系的に読めます'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ReadingListView()),
             ),
           ),
         ),
