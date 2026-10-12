@@ -49,25 +49,26 @@ const substances = <Substance>[
     name: '二硫化炭素',
     category: '特殊引火物',
     flashPointC: -30,
-    ignitionPointC: 100,
+    ignitionPointC: 90,
     specificGravity: 1.26,
     waterSoluble: false,
     designatedQuantityL: 50,
     sourceRef: '引火点・発火点・比重・水溶性・指定数量をSDS類及び危険物の規制に関する'
-        '政令別表第三の要約で確認（2026-10-03、WebSearch経由）。比重1.26は'
-        '第4類で唯一水より重い代表例',
+        '政令別表第三の要約で確認（2026-10-03、WebSearch経由）。発火点90℃は'
+        '厚労省 職場のあんぜんサイト（ICSC(J)(2000)）で再確認（2026-10-12）。'
+        '比重1.26は第4類で唯一水より重い代表例',
   ),
   Substance(
     id: 'diethyl_ether',
     name: 'ジエチルエーテル',
     category: '特殊引火物',
     flashPointC: -45,
-    ignitionPointC: 160,
+    ignitionPointC: 175,
     specificGravity: 0.706,
     waterSoluble: false,
     designatedQuantityL: 50,
-    sourceRef: '引火点・比重をSDS類で確認、発火点は複数資料で160℃付近に一致'
-        '（2026-10-03、WebSearch経由）',
+    sourceRef: '引火点・比重をSDS類で確認（2026-10-03、WebSearch経由）。発火点は'
+        '厚労省 職場のあんぜんサイト（GESTIS (2017)）の175℃に修正（2026-10-12）',
   ),
   Substance(
     id: 'gasoline',
