@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:app_common_kit/app_common_kit.dart';
+import 'package:ukalab_core/ui.dart';
 
 /// 乙4の頻出用語（暗記カードで使用）。
 ///

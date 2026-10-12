@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:otsu4/data/glossary.dart';
+import 'package:ukalab_core/ui.dart';
 
 void main() {
   group('searchGlossaryTerms', () {
