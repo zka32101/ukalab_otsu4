@@ -15,7 +15,7 @@ import '../data/subject_stats_history_store.dart';
 import '../data/subject_stats_store.dart';
 import 'choice_labels.dart';
 import 'glossary_card_view.dart';
-import 'package:ukalab_core/ui.dart' show BookmarkToggleButton, QuestionMemoField;
+import 'package:ukalab_core/ui.dart' show BookmarkToggleButton, QuestionMemoField, TappableTermText;
 
 /// 一問一答の演習（`Question` のプール）共通部分。[pool] が空なら
 /// [emptyMessage] を表示する。[StudyView]（全体プール）と、苦手問題だけの

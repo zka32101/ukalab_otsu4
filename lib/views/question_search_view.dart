@@ -8,7 +8,7 @@ import '../data/glossary_favorite_store.dart';
 import '../data/question_repository.dart';
 import 'choice_labels.dart';
 import 'glossary_card_view.dart';
-import 'package:ukalab_core/ui.dart' show QuestionDetailScreen, bookmarkProvider;
+import 'package:ukalab_core/ui.dart' show QuestionDetailScreen, TappableTermText, bookmarkProvider;
 
 /// 重要語句で、用語集・問題を横断的に検索できる画面。学ぶタブの入り口から
 /// いつでも開ける（問題データの有無にかかわらず用語集の検索はできる）。
