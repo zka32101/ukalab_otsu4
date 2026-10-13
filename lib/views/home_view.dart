@@ -11,7 +11,7 @@ import '../data/glossary.dart';
 import '../data/mock_history_store.dart';
 import '../data/selected_level_store.dart';
 import '../widgets/oshi_card.dart';
-import 'core_feature_views.dart';
+import 'exam_prep_entry.dart';
 import 'glossary_card_view.dart';
 
 /// ホーム。試験の概要と、学ぶ・模擬への導線。

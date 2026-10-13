@@ -4,6 +4,7 @@ import 'package:ukalab_core/ukalab_core.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'answered_questions_store.dart';
 import 'combo_store.dart';
+import 'core_features.dart';
 import 'daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'glossary_mastered_store.dart';
@@ -21,7 +22,7 @@ List<Map<String, dynamic>> _maps(Object? json) => (json as List).cast<Map<String
 /// 設定タブの「データの管理」（書き出し・読み込み・リセット）の対象。
 ///
 /// 進捗・解答履歴・模試結果・デイリーミッション・分野別統計・苦手問題の復習・
-/// 自分用メモ・最近見た用語・コンボの自己最高記録・日別の解答数・正解数・用語集の
+/// 自分用メモ・最近見た用語・コンボの自己最高記録・日別の解答数・正解数・試験当日チェックリストのチェック状態・用語集の
 /// 「覚えた」フラグ・実績バッジの解除通知済みIDが対象。
 /// テーマ・リマインダー設定・試験日・用語集のお気に入り・ブックマークは
 /// ユーザー設定・curationとして扱い、含めない。
@@ -135,6 +136,12 @@ final List<DataPart> otsu4DataParts = [
     restore: (ref, json) =>
         ref.read(glossaryMasteredProvider.notifier).restore((json as List).cast<String>().toSet()),
     reset: (ref) => ref.read(glossaryMasteredProvider.notifier).reset(),
+  ),
+  DataPart(
+    id: 'examChecklist',
+    export: (ref) => ref.read(checklistProvider).checkedIds.toList()..sort(),
+    restore: (ref, json) => ref.read(checklistProvider.notifier).restore((json as List).cast<String>()),
+    reset: (ref) => ref.read(checklistProvider.notifier).reset(),
   ),
   // 解除通知済みの実績ID。バックアップには含めず（書き出さず・読み込まず）、リセットだけ行う。
   DataPart(

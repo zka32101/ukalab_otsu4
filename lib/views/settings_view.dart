@@ -21,7 +21,7 @@ import '../data/srs_store.dart';
 import '../data/subject_stats_store.dart';
 import '../data/theme_store.dart';
 import '../data/today_highlight.dart';
-import 'core_feature_views.dart';
+import 'exam_prep_entry.dart';
 import 'focus_training_view.dart';
 import 'source_credits_view.dart';
 

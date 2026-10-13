@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:otsu4/data/core_features.dart';
 import 'package:otsu4/data/exam_date_store.dart';
-import 'package:otsu4/views/core_feature_views.dart';
+import 'package:otsu4/data/data_parts.dart';
+import 'package:otsu4/views/exam_prep_entry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 Question _q(String qid, {List<String> tags = const []}) => Question(
@@ -83,8 +85,18 @@ void main() {
             category: ChecklistCategory.belongings,
             label: '項目$id'),
     ];
+    late WidgetRef wref;
     await tester.pumpWidget(ProviderScope(
-      child: MaterialApp(home: ChecklistView(itemsOverride: items)),
+      child: Consumer(builder: (context, ref, _) {
+        wref = ref;
+        return MaterialApp(
+            home: ExamDayChecklistView(
+          examId: 'hazmat4',
+          items: items,
+          initialProgress: ref.read(checklistProvider),
+          onChanged: ref.read(checklistProvider.notifier).setProgress,
+        ));
+      }),
     ));
     await tester.pump();
     expect(find.text('0 / ${items.length} 完了'), findsOneWidget);
@@ -93,6 +105,13 @@ void main() {
     expect(find.text('1 / ${items.length} 完了'), findsOneWidget);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getStringList('ukalab_otsu4_exam_checklist_v1'), hasLength(1));
+    // バックアップ対象(otsu4DataParts)に入っていて、書き出し・リセット・復元できる
+    final part = otsu4DataParts.firstWhere((p) => p.id == 'examChecklist');
+    expect(part.export(wref), hasLength(1));
+    await tester.runAsync(() => part.reset(wref));
+    expect(wref.read(checklistProvider).checkedIds, isEmpty);
+    await tester.runAsync(() => part.restore(wref, ['a', 'b']));
+    expect(wref.read(checklistProvider).checkedIds, {'a', 'b'});
   });
 
   testWidgets('更新ログ: 新しい順に表示、空なら穏やかな文言', (tester) async {
@@ -112,7 +131,7 @@ void main() {
     await tester.pumpWidget(
         MaterialApp(home: UpdateLogView(entriesFuture: Future.value([]))));
     await tester.pump();
-    expect(find.text(CoreFeatureText.updateLogEmpty), findsOneWidget);
+    expect(find.text(ExamPrepStrings.ja.updateLogEmpty), findsOneWidget);
   });
 
   testWidgets('ホームのカード: 試験日が遠いと直前モードは出ず、近いと出る', (tester) async {
@@ -141,14 +160,15 @@ void main() {
   });
 
   test('文言に責める表現・他人比較を含めない', () {
+    const s = ExamPrepStrings.ja;
     final texts = [
-      CoreFeatureText.tenMinSubtitle,
-      CoreFeatureText.examEveSubtitle,
-      CoreFeatureText.emptyEve,
-      CoreFeatureText.exportEmpty,
-      CoreFeatureText.checklistDone,
-      CoreFeatureText.checklistNote,
-      CoreFeatureText.updateLogEmpty,
+      s.tenMinSubtitle,
+      s.examEveSubtitle,
+      s.emptyEve,
+      s.exportEmpty,
+      s.checklistDone,
+      s.checklistNote,
+      s.updateLogEmpty,
     ].join();
     for (final w in ['遅れ', 'サボ', 'ダメ', '他の人', '平均', 'ランキング', '順位']) {
       expect(texts.contains(w), isFalse, reason: w);
