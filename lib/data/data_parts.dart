@@ -14,6 +14,7 @@ import 'mock_history_store.dart';
 import 'mistake_notes.dart';
 import 'mock_wrong_store.dart';
 import 'progress_store.dart';
+import 'review_schedule.dart';
 import 'recent_glossary_terms_store.dart';
 import 'srs_store.dart';
 import 'subject_stats_history_store.dart';
@@ -155,6 +156,8 @@ final List<DataPart> otsu4DataParts = [
   ),
   // 間違いノート(間違えた問題ID・日時・原因・分野・回数。端末内)。
   mistakeNoteDataPart(mistakeNoteStore),
+  // 今日の復習の予定(間違いノートから作る復習日程。端末内)。
+  reviewScheduleDataPart(),
   // 解除通知済みの実績ID。バックアップには含めず（書き出さず・読み込まず）、リセットだけ行う。
   DataPart(
     id: 'achievementUnlock',

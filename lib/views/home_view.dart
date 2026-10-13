@@ -14,7 +14,9 @@ import '../data/glossary.dart';
 import '../data/mock_history_store.dart';
 import '../data/selected_level_store.dart';
 import '../widgets/oshi_card.dart';
+import '../widgets/oshi_growth_section.dart';
 import '../widgets/oshi_home_cards.dart';
+import '../widgets/today_review_section.dart';
 import 'exam_prep_entry.dart';
 import 'mistake_note_screen.dart';
 import 'glossary_card_view.dart';
@@ -150,6 +152,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
         // ① 今日やること
         section('today', '今日やること', Icons.today_outlined, [
           const StudyReminderCard(),
+          // 今日の復習(間違いノートから。期限が来た件数だけを静かに知らせる)。
+          TodayReviewSection(exam: exam),
           if (showMockReminder)
             Card(
               margin: EdgeInsets.zero,
@@ -187,6 +191,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
         ]),
         // ② 記録
         section('record', '記録', Icons.insights_outlined, [
+          // これまでの積み重ねへの推しの反応と、節目の祝福(一度だけ)。
+          const OshiGrowthSection(),
           // 週間ふりかえり(無料。今週できたことだけを見せる)。
           WeeklyRecapSection(
               exam: exam, questions: ref.watch(allQuestionsProvider).valueOrNull ?? const []),
