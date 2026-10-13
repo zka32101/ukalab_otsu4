@@ -28,6 +28,7 @@ void main() {
         'recentGlossaryTerms',
         'bestCombo',
         'dailyAnswerStats',
+        'learnedTerms',
         'glossaryMastered',
       ]),
     );

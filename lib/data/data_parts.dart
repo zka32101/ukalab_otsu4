@@ -1,3 +1,4 @@
+import 'package:ukalab_core/glossary.dart' show learnedTermsDataPart;
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
@@ -7,7 +8,7 @@ import 'combo_store.dart';
 import 'core_features.dart';
 import 'daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
-import 'glossary_mastered_store.dart';
+import 'learned_terms.dart';
 import 'history_store.dart';
 import 'mock_history_store.dart';
 import 'mistake_notes.dart';
@@ -24,7 +25,7 @@ List<Map<String, dynamic>> _maps(Object? json) => (json as List).cast<Map<String
 ///
 /// 進捗・解答履歴・模試結果・デイリーミッション・分野別統計・苦手問題の復習・
 /// 自分用メモ・最近見た用語・コンボの自己最高記録・日別の解答数・正解数・試験当日チェックリストのチェック状態・用語集の
-/// 「覚えた」フラグ・間違いノート・実績バッジの解除通知済みIDが対象。
+/// 「覚えた」（`learnedTerms`。旧 `glossaryMastered` の旧形式バックアップも読める）・間違いノート・実績バッジの解除通知済みIDが対象。
 /// テーマ・リマインダー設定・試験日・用語集のお気に入り・ブックマークは
 /// ユーザー設定・curationとして扱い、含めない。
 ///
@@ -131,12 +132,20 @@ final List<DataPart> otsu4DataParts = [
         .restore([for (final j in _maps(json)) DailyAnswerStatsEntry.fromJson(j)]),
     reset: (ref) => ref.read(dailyAnswerStatsProvider.notifier).reset(),
   ),
+  // 用語集の「覚えた」（ukalab_core の共通部品）。読み込み・リセット後は画面の状態も読み直す。
+  _learnedTermsPart(),
+  // 旧実装の「覚えた」（id `glossaryMastered`）。書き出さず、旧形式のバックアップの読み込みだけ受ける。
+  // リセットでは旧キーも消す（旧キーが残って再取り込みされないようにする）。
   DataPart(
     id: 'glossaryMastered',
-    export: (ref) => ref.read(glossaryMasteredProvider).toList(),
-    restore: (ref, json) =>
-        ref.read(glossaryMasteredProvider.notifier).restore((json as List).cast<String>().toSet()),
-    reset: (ref) => ref.read(glossaryMasteredProvider.notifier).reset(),
+    export: (ref) => null,
+    restore: (ref, json) async {
+      if (json is! List) return;
+      await learnedTermsStore.replace(json.cast<String>().toSet());
+      await clearLegacyGlossaryMastered();
+      await ref.read(learnedTermsProvider.notifier).reload();
+    },
+    reset: (ref) => clearLegacyGlossaryMastered(),
   ),
   DataPart(
     id: 'examChecklist',
@@ -154,3 +163,20 @@ final List<DataPart> otsu4DataParts = [
     reset: (ref) => ref.read(achievementUnlockProvider.notifier).reset(),
   ),
 ];
+
+DataPart _learnedTermsPart() {
+  final base = learnedTermsDataPart(learnedTermsStore);
+  return DataPart(
+    id: base.id,
+    export: base.export,
+    restore: (ref, json) async {
+      await base.restore(ref, json);
+      await ref.read(learnedTermsProvider.notifier).reload();
+    },
+    reset: (ref) async {
+      await base.reset(ref);
+      await clearLegacyGlossaryMastered();
+      await ref.read(learnedTermsProvider.notifier).reload();
+    },
+  );
+}

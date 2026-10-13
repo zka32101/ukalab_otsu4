@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/glossary.dart';
 import '../data/glossary_favorite_store.dart';
-import '../data/glossary_mastered_store.dart';
+import '../data/learned_terms.dart';
 import '../data/recent_glossary_terms_store.dart';
 import 'recent_glossary_terms_view.dart';
 
@@ -18,7 +18,7 @@ const _subjectFilterLabels = <String?, String>{
 /// 乙4の頻出用語の暗記カード。タップで表（用語）・裏（定義）を切り替え、
 /// 「次へ」で次の用語に進む。分野（法令・物理化学・性質消火）・お気に入り
 /// （`lib/data/glossary_favorite_store.dart`）・未習得（自己申告の「覚えた」
-/// フラグ、`lib/data/glossary_mastered_store.dart`）で絞り込める。
+/// フラグ、`lib/data/learned_terms.dart`）で絞り込める。
 /// `lib/data/glossary.dart` の既存の確認済みデータに基づく定義を使い、
 /// 新たな一次資料の収集は行っていない。
 class GlossaryCardView extends ConsumerStatefulWidget {
@@ -153,7 +153,7 @@ class _GlossaryCardViewState extends ConsumerState<GlossaryCardView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final favorites = ref.watch(glossaryFavoriteProvider);
-    final mastered = ref.watch(glossaryMasteredProvider);
+    final mastered = ref.watch(learnedTermsProvider);
     final filtered = filterGlossaryTerms(
       subjectId: _subjectFilter,
       favoritesOnly: _favoritesOnly,
@@ -304,7 +304,7 @@ class _GlossaryCardViewState extends ConsumerState<GlossaryCardView> {
                       icon: Icon(isMastered ? Icons.check_circle : Icons.check_circle_outline),
                       color: isMastered ? theme.colorScheme.primary : null,
                       tooltip: isMastered ? '覚えたを解除' : '覚えた',
-                      onPressed: () => ref.read(glossaryMasteredProvider.notifier).toggle(term.term),
+                      onPressed: () => ref.read(learnedTermsProvider.notifier).toggle(term.term),
                     ),
                   ),
                   Positioned(
