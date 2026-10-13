@@ -35,14 +35,6 @@ Future<List<ChecklistItem>> loadChecklist({AssetBundle? bundle}) async {
       venue: ExamVenueKind.venue);
 }
 
-/// 解答履歴から、日付ごと・分野ごとのCSVを組む（個人情報・問題IDは含めない）。
-String historyCsvText(List<ProgressRecord> records, List<Question> questions) {
-  final daily = dailySummaryCsv(summarizeByDay(records));
-  final topic =
-      topicAccuracyCsv(summarizeByTopic(records, questions: questions));
-  return '$daily\n$topic';
-}
-
 /// プレミアムか（試験直前・10分プラン・履歴の書き出しの利用可否）。
 bool isPremiumFor(WidgetRef ref, PremiumFeature feature) =>
     canUsePremiumFeature(
@@ -56,6 +48,9 @@ bool isPremiumFor(WidgetRef ref, PremiumFeature feature) =>
 class ChecklistNotifier extends Notifier<ChecklistProgress> {
   static const _key = 'ukalab_otsu4_exam_checklist_v1';
   late Future<void> _loaded;
+
+  /// 保存済みの状態を読み終えたとき。
+  Future<void> get ready => _loaded;
 
   @override
   ChecklistProgress build() {
@@ -71,13 +66,29 @@ class ChecklistNotifier extends Notifier<ChecklistProgress> {
     } catch (_) {}
   }
 
-  Future<void> toggle(String itemId) async {
-    await _loaded;
-    state = state.toggle(itemId);
+  Future<void> _save() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_key, state.checkedIds.toList()..sort());
     } catch (_) {}
+  }
+
+  /// 共通画面の変更通知から呼ぶ（チェック状態をまるごと置き換える）。
+  Future<void> setProgress(ChecklistProgress p) async {
+    await _loaded;
+    state = p;
+    await _save();
+  }
+
+  /// バックアップの読み込み用。
+  Future<void> restore(Iterable<String> ids) => setProgress(ChecklistProgress(ids.toSet()));
+
+  /// リセット用。
+  Future<void> reset() => setProgress(const ChecklistProgress());
+  Future<void> toggle(String itemId) async {
+    await _loaded;
+    state = state.toggle(itemId);
+    await _save();
   }
 }
 
