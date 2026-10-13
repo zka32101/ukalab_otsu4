@@ -11,6 +11,7 @@ import '../data/glossary.dart';
 import '../data/mock_history_store.dart';
 import '../data/selected_level_store.dart';
 import '../widgets/oshi_card.dart';
+import 'core_feature_views.dart';
 import 'glossary_card_view.dart';
 
 /// ホーム。試験の概要と、学ぶ・模擬への導線。
@@ -140,6 +141,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
           const SizedBox(height: 16),
         ],
         const OshiCard(),
+        const SizedBox(height: 16),
+        const CoreFeaturesCard(),
         const SizedBox(height: 16),
         if (glossaryTermOfDay(glossaryTerms, DateTime.now()) != null) ...[
           _TermOfDayCard(term: glossaryTermOfDay(glossaryTerms, DateTime.now())!),
