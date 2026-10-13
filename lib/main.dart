@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
+import 'package:cross_promo_kit/cross_promo_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
@@ -8,6 +11,7 @@ import 'package:ukalab_core/achievements.dart';
 import 'data/achievements_provider.dart';
 import 'data/answered_questions_store.dart';
 import 'data/combo_store.dart';
+import 'data/cross_promo_setup.dart';
 import 'data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
@@ -131,6 +135,12 @@ void main() async {
       'otsu4_premium': EntitlementState(hasPremium: true),
     },
   );
+
+  // 相互紹介用の Firebase 初期化。別の try/catch（initFirebaseForCrossPromo 内）で行い、
+  // 失敗（firebase_options / google-services.json 未配置など）してもアプリ起動は止めない。
+  // 取得完了後に設定画面のカードが自動で表示される。
+  await initFirebaseForCrossPromo();
+  unawaited(CrossPromoService.init());
 
   runApp(
     ProviderScope(

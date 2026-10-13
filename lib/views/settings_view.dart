@@ -1,4 +1,5 @@
 import 'package:app_common_kit/app_common_kit.dart';
+import 'package:cross_promo_kit/cross_promo_kit.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:ukalab_core/ukalab_core.dart';
 
 import 'package:ukalab_core/achievements.dart';
 import '../data/answered_questions_store.dart';
+import '../data/cross_promo_setup.dart';
 import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
@@ -219,6 +221,12 @@ class SettingsView extends ConsumerWidget {
           description: '学習記録（解答数・正答率・模試結果・デイリーミッション・苦手問題の復習・'
               '自分用メモ等）は、テーマ・リマインダー設定・試験日・ブックマーク・'
               '用語集のお気に入りを除いて、書き出し・読み込み・リセットができます。',
+        ),
+        // 他のうかラボ（資格系）アプリの紹介。掲載リストが空なら何も表示しない。
+        // 大人向けアプリなので isChildDirected は付けない。
+        const CrossPromoSection(
+          currentAppId: kCrossPromoAppId,
+          currentCategory: kCrossPromoCategory,
         ),
         const SizedBox(height: 24),
         Text('このアプリについて', style: theme.textTheme.titleSmall),
