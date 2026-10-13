@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart' show EntitlementState, entitlementStateProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
@@ -25,6 +26,8 @@ import 'study_tools_view.dart';
 import 'temperature_lab_view.dart';
 import 'violation_hunt_view.dart';
 import 'weak_review_view.dart';
+import 'package:ukalab_core/answer_feedback.dart' show WeakSummaryCard, canShowWeakSummary;
+import '../data/history_store.dart';
 import 'package:ukalab_core/ui.dart' show bookmarkProvider, questionMemoProvider;
 
 /// 一問一答の演習（問題データが無ければ空状態）と、体験型の演習（画期的な
@@ -336,6 +339,16 @@ class _StudyViewState extends ConsumerState<StudyView> {
                   onSelected: (_) => setState(() => _subjectFilter = s.subjectId),
                 ),
             ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (canShowWeakSummary(
+          isPremium: (ref.watch(entitlementStateProvider).valueOrNull ?? EntitlementState.free).hasPremium,
+        )) ...[
+          WeakSummaryCard(
+            records: ref.watch(historyProvider),
+            now: DateTime.now(),
+            questions: allQs,
           ),
           const SizedBox(height: 12),
         ],
