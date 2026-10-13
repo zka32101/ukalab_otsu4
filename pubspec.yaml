@@ -23,17 +23,7 @@ dependencies:
   ukalab_core:
     git:
       url: https://github.com/zka32101/ukalab_core.git
-      ref: v0.53.0
-
-  # 相互紹介（クロスプロモーション）。Remote Config で配信する掲載リストを設定画面に表示する。
-  # cross_promo_kit はタグ固定（main は参照しない）。firebase_* は kit の許容レンジ
-  # （firebase_remote_config >=4.0.0 <7.0.0）と ukalab_core の cloud_firestore（>=5 <7）の両方を満たす範囲。
-  firebase_core: ">=4.0.0 <5.0.0"
-  firebase_remote_config: ">=6.0.0 <7.0.0"
-  cross_promo_kit:
-    git:
-      url: https://github.com/zka32101/cross_promo_kit
-      ref: v0.3.0
+      ref: v0.54.0
 
 dev_dependencies:
   flutter_test:

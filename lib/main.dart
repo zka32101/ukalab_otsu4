@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:app_common_kit/app_common_kit.dart';
+import 'package:ukalab_core/cross_promo.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
-import 'package:cross_promo_kit/cross_promo_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
@@ -136,11 +136,9 @@ void main() async {
     },
   );
 
-  // 相互紹介用の Firebase 初期化。別の try/catch（initFirebaseForCrossPromo 内）で行い、
-  // 失敗（firebase_options / google-services.json 未配置など）してもアプリ起動は止めない。
-  // 取得完了後に設定画面のカードが自動で表示される。
-  await initFirebaseForCrossPromo();
-  unawaited(CrossPromoService.init());
+  // 相互紹介（ukalab_core）。Firebase 初期化と Remote Config 取得を内部でまとめて行い、
+  // 失敗（設定ファイル未配置など）しても例外を投げず起動を止めない。
+  unawaited(UkalabCrossPromo.init());
 
   runApp(
     ProviderScope(
