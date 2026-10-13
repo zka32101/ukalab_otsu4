@@ -1,6 +1,7 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
+import 'exam_date_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
@@ -182,18 +183,7 @@ class SettingsView extends ConsumerWidget {
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: () async {
-                  final now = DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: examDate ?? now,
-                    firstDate: now.subtract(const Duration(days: 1)),
-                    lastDate: now.add(const Duration(days: 730)),
-                  );
-                  if (picked != null) {
-                    ref.read(examDateProvider.notifier).setDate(picked);
-                  }
-                },
+                onPressed: () => pickExamDate(context, ref),
                 child: Text(
                   examDate == null
                       ? '試験日を設定'

@@ -6,6 +6,7 @@ import 'package:ukalab_core/ukalab_core.dart';
 import '../data/core_features.dart';
 import '../data/exam_date_store.dart';
 import '../data/history_store.dart';
+import 'exam_date_picker.dart';
 import 'practice_session_view.dart';
 
 /// ukalab_core の共通画面（`lib/ui/exam_prep/`）をこのアプリのデータにつなぐ部分。
@@ -24,6 +25,31 @@ void _openPractice(
       ),
     ),
   );
+}
+
+/// ホームの試験日カウントダウン(ukalab_core v0.63.0。無料)。未設定なら何も出さない。
+/// タップで既存の試験日設定(日付ピッカー)を開く。
+class ExamCountdownSection extends ConsumerWidget {
+  const ExamCountdownSection({super.key, this.clock = DateTime.now});
+
+  final DateTime Function() clock;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final date = ref.watch(examDateProvider);
+    if (date == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ExamCountdownChip(
+          examDate: date,
+          clock: clock,
+          onTap: () => pickExamDate(context, ref),
+        ),
+      ),
+    );
+  }
 }
 
 /// ホームの「試験に向けて」カード。
