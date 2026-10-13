@@ -21,6 +21,7 @@ import '../data/srs_store.dart';
 import '../data/subject_stats_store.dart';
 import '../data/theme_store.dart';
 import '../data/today_highlight.dart';
+import 'core_feature_views.dart';
 import 'focus_training_view.dart';
 import 'source_credits_view.dart';
 
@@ -222,6 +223,8 @@ class SettingsView extends ConsumerWidget {
               '自分用メモ等）は、テーマ・リマインダー設定・試験日・ブックマーク・'
               '用語集のお気に入りを除いて、書き出し・読み込み・リセットができます。',
         ),
+        const CoreFeatureSettingsTiles(),
+        const SizedBox(height: 12),
         // 他のうかラボ（資格系）アプリの紹介。掲載リストが空なら何も表示しない。
         // 大人向けアプリなので isChildDirected は付けない。
         const UkalabCrossPromoSection(currentAppId: kCrossPromoAppId),
