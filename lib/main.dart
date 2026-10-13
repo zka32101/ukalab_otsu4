@@ -11,7 +11,6 @@ import 'package:ukalab_core/achievements.dart';
 import 'data/achievements_provider.dart';
 import 'data/answered_questions_store.dart';
 import 'data/combo_store.dart';
-import 'data/cross_promo_setup.dart';
 import 'data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
