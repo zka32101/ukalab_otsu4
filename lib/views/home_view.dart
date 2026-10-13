@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/reminder.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
+import '../data/core_features.dart';
 import '../data/daily_answer_stats_store.dart';
 import '../data/exam_date_store.dart';
 import '../data/exam_repository.dart';
@@ -11,7 +12,9 @@ import '../data/glossary.dart';
 import '../data/mock_history_store.dart';
 import '../data/selected_level_store.dart';
 import '../widgets/oshi_card.dart';
+import '../widgets/oshi_home_cards.dart';
 import 'exam_prep_entry.dart';
+import 'mistake_note_screen.dart';
 import 'glossary_card_view.dart';
 
 /// ホーム。試験の概要と、学ぶ・模擬への導線。
@@ -141,8 +144,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
           const SizedBox(height: 16),
         ],
         const OshiCard(),
+        const SizedBox(height: 8),
+        // 推しの一言(無料)。タップで別の一言。
+        const OshiMessageCard(),
         const SizedBox(height: 16),
         const CoreFeaturesCard(),
+        const SizedBox(height: 16),
+        // 週間ふりかえり(無料。今週できたことだけを見せる)。
+        WeeklyRecapSection(
+            exam: exam, questions: ref.watch(allQuestionsProvider).valueOrNull ?? const []),
+        const SizedBox(height: 16),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.edit_note_outlined),
+            title: const Text('間違いノート'),
+            subtitle: const Text('間違えた問題を見返して、解き直せます。'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openMistakeNote(context, ref, exam: exam),
+          ),
+        ),
         const SizedBox(height: 16),
         if (glossaryTermOfDay(glossaryTerms, DateTime.now()) != null) ...[
           _TermOfDayCard(term: glossaryTermOfDay(glossaryTerms, DateTime.now())!),

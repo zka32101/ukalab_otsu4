@@ -10,6 +10,7 @@ import 'package:ukalab_core/daily_goal.dart';
 import 'glossary_mastered_store.dart';
 import 'history_store.dart';
 import 'mock_history_store.dart';
+import 'mistake_notes.dart';
 import 'mock_wrong_store.dart';
 import 'progress_store.dart';
 import 'recent_glossary_terms_store.dart';
@@ -23,7 +24,7 @@ List<Map<String, dynamic>> _maps(Object? json) => (json as List).cast<Map<String
 ///
 /// 進捗・解答履歴・模試結果・デイリーミッション・分野別統計・苦手問題の復習・
 /// 自分用メモ・最近見た用語・コンボの自己最高記録・日別の解答数・正解数・試験当日チェックリストのチェック状態・用語集の
-/// 「覚えた」フラグ・実績バッジの解除通知済みIDが対象。
+/// 「覚えた」フラグ・間違いノート・実績バッジの解除通知済みIDが対象。
 /// テーマ・リマインダー設定・試験日・用語集のお気に入り・ブックマークは
 /// ユーザー設定・curationとして扱い、含めない。
 ///
@@ -143,6 +144,8 @@ final List<DataPart> otsu4DataParts = [
     restore: (ref, json) => ref.read(checklistProvider.notifier).restore((json as List).cast<String>()),
     reset: (ref) => ref.read(checklistProvider.notifier).reset(),
   ),
+  // 間違いノート(間違えた問題ID・日時・原因・分野・回数。端末内)。
+  mistakeNoteDataPart(mistakeNoteStore),
   // 解除通知済みの実績ID。バックアップには含めず（書き出さず・読み込まず）、リセットだけ行う。
   DataPart(
     id: 'achievementUnlock',

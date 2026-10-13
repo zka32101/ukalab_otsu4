@@ -22,6 +22,7 @@ import '../data/subject_stats_store.dart';
 import '../data/theme_store.dart';
 import '../data/today_highlight.dart';
 import 'exam_prep_entry.dart';
+import 'mistake_note_screen.dart';
 import 'focus_training_view.dart';
 import 'source_credits_view.dart';
 
@@ -220,10 +221,18 @@ class SettingsView extends ConsumerWidget {
         DataManagementSection(
           parts: otsu4DataParts,
           description: '学習記録（解答数・正答率・模試結果・デイリーミッション・苦手問題の復習・'
-              '自分用メモ等）は、テーマ・リマインダー設定・試験日・ブックマーク・'
+              '自分用メモ・間違いノート等）は、テーマ・リマインダー設定・試験日・ブックマーク・'
               '用語集のお気に入りを除いて、書き出し・読み込み・リセットができます。',
         ),
         const CoreFeatureSettingsTiles(),
+        if (exam != null)
+          ListTile(
+            leading: const Icon(Icons.edit_note_outlined),
+            title: const Text('間違いノート'),
+            subtitle: const Text('間違えた問題を見返して、解き直せます。'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => openMistakeNote(context, ref, exam: exam),
+          ),
         const SizedBox(height: 12),
         // 他のうかラボ（資格系）アプリの紹介。掲載リストが空なら何も表示しない。
         // 大人向けアプリなので isChildDirected は付けない。
