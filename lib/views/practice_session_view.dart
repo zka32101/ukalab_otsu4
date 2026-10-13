@@ -70,7 +70,11 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     });
     final session = _session;
     if (session != null) {
-      ref.read(recentQuestionsProvider.notifier).recordShown(session.questions.map((q) => q.qid));
+      // initState からも呼ばれる。build 中の provider 変更(デバッグ時の assert)を避けるため次の microtask で記録する。
+      final shown = session.questions.map((q) => q.qid).toList();
+      Future.microtask(() {
+        if (mounted) ref.read(recentQuestionsProvider.notifier).recordShown(shown);
+      });
     }
   }
 
