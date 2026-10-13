@@ -16,7 +16,7 @@ import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
 import 'data/exam_date_store.dart';
 import 'data/glossary_favorite_store.dart';
-import 'data/glossary_mastered_store.dart';
+import 'data/learned_terms.dart';
 import 'data/mock_history_store.dart';
 import 'data/mock_wrong_store.dart';
 import 'data/progress_store.dart';
@@ -91,8 +91,9 @@ void main() async {
   await glossaryFavoriteService.load();
 
   // 「覚えた」と自己申告した用語集の用語。端末内に保存する。
-  final glossaryMasteredService = GlossaryMasteredService();
-  await glossaryMasteredService.load();
+  // 旧キー（ukalab_otsu4_glossary_mastered）からの取り込みは初回のみ行う。
+  await migrateLegacyGlossaryMastered(learnedTermsStore);
+  final learnedTerms = await learnedTermsStore.load();
 
   // アプリ内リマインダー（学習・模試）の個別オン/オフ設定。端末内に保存する。
   final reminderOverridesList = await reminderOverrides('otsu4');
@@ -158,7 +159,7 @@ void main() async {
         selectedLevelServiceProvider.overrideWithValue(selectedLevelService),
         answeredQuestionsServiceProvider.overrideWithValue(answeredQuestionsService),
         glossaryFavoriteServiceProvider.overrideWithValue(glossaryFavoriteService),
-        glossaryMasteredServiceProvider.overrideWithValue(glossaryMasteredService),
+        learnedTermsInitialProvider.overrideWithValue(learnedTerms),
         ...reminderOverridesList,
         recentGlossaryTermsServiceProvider.overrideWithValue(recentGlossaryTermsService),
         comboServiceProvider.overrideWithValue(comboService),
