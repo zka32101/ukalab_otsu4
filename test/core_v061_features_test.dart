@@ -1,5 +1,6 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:otsu4/data/achievements_provider.dart';
@@ -394,10 +395,13 @@ void main() {
     testWidgets('ホーム: 推しの一言・週間ふりかえり・間違いノートのカードが出て、ノートを開ける', (tester) async {
       await pumpApp(tester, const HomeView());
       expect(find.byType(OshiMessageBubble), findsOneWidget);
+      // ホームの分類分けで「記録」が下に移ったため、スクロールして探す。
+      await tester.scrollUntilVisible(find.byType(WeeklyRecapCard), 300,
+          scrollable: find.byType(Scrollable).first);
       expect(find.byType(WeeklyRecapCard), findsOneWidget);
       // 推しの一言と二重にならないよう、ふりかえりの message スロットは使わない
       expect(tester.widget<WeeklyRecapCard>(find.byType(WeeklyRecapCard)).message, isNull);
-      await tester.scrollUntilVisible(find.text('間違いノート'), 300,
+      await tester.scrollUntilVisible(find.text('間違いノート'), -300,
           scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('間違いノート'));
       await _waitForNoteScreen(tester);
@@ -477,6 +481,7 @@ void main() {
       addTearDown(tester.view.reset);
       final overrides = reuse ?? await _overrides(tester, examDate: examDate);
       // 試験定義(アセット)を先に読んでおく(テスト間でも確実に読み込み完了させる)。
+      rootBundle.evict(ExamRepository.assetPath);
       await tester.runAsync(() => const ExamRepository().load());
       await tester.pumpWidget(ProviderScope(
         key: UniqueKey(),
