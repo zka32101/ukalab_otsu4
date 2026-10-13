@@ -1,5 +1,6 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:otsu4/data/achievements_provider.dart';
@@ -20,6 +21,7 @@ import 'package:otsu4/data/srs_store.dart';
 import 'package:otsu4/data/theme_store.dart';
 import 'package:otsu4/data/subject_stats_history_store.dart';
 import 'package:otsu4/data/subject_stats_store.dart';
+import 'package:otsu4/views/exam_prep_entry.dart';
 import 'package:otsu4/views/home_view.dart';
 import 'package:otsu4/views/mistake_note_screen.dart';
 import 'package:otsu4/views/settings_view.dart';
@@ -393,10 +395,13 @@ void main() {
     testWidgets('ホーム: 推しの一言・週間ふりかえり・間違いノートのカードが出て、ノートを開ける', (tester) async {
       await pumpApp(tester, const HomeView());
       expect(find.byType(OshiMessageBubble), findsOneWidget);
+      // ホームの分類分けで「記録」が下に移ったため、スクロールして探す。
+      await tester.scrollUntilVisible(find.byType(WeeklyRecapCard), 300,
+          scrollable: find.byType(Scrollable).first);
       expect(find.byType(WeeklyRecapCard), findsOneWidget);
       // 推しの一言と二重にならないよう、ふりかえりの message スロットは使わない
       expect(tester.widget<WeeklyRecapCard>(find.byType(WeeklyRecapCard)).message, isNull);
-      await tester.scrollUntilVisible(find.text('間違いノート'), 300,
+      await tester.scrollUntilVisible(find.text('間違いノート'), -300,
           scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('間違いノート'));
       await _waitForNoteScreen(tester);
@@ -462,5 +467,114 @@ void main() {
     for (final w in ['サボ', '遅れ', 'しないと', 'ダメ', '焦', '急が', '少な', '減', '先週', '前週', '比べ', 'ワースト', 'また間違']) {
       expect(texts.contains(w), isFalse, reason: w);
     }
+  });
+  group('ホーム: 分類分け(今日やること/記録/試験の準備)', () {
+    Future<List<Override>> pumpHome(
+      WidgetTester tester, {
+      DateTime? examDate,
+      Size size = const Size(800, 4000),
+      double textScale = 1.0,
+      List<Override>? reuse,
+    }) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final overrides = reuse ?? await _overrides(tester, examDate: examDate);
+      // 試験定義(アセット)を先に読んでおく(テスト間でも確実に読み込み完了させる)。
+      rootBundle.evict(ExamRepository.assetPath);
+      await tester.runAsync(() => const ExamRepository().load());
+      await tester.pumpWidget(ProviderScope(
+        key: UniqueKey(),
+        overrides: [
+          ...overrides,
+          examConfigProvider.overrideWith((ref) async => _exam()),
+        ],
+        child: MaterialApp(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
+          home: const Scaffold(body: HomeView()),
+        ),
+      ));
+      final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+      await tester.runAsync(() => container.read(allQuestionsProvider.future));
+      for (var i = 0; i < 100 && find.byType(HomeSection).evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await tester.pump();
+      }
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await tester.pump();
+      }
+      return overrides;
+    }
+
+    testWidgets('3つの見出しが表示され、乙4に無い分類(道具・体験ラボ・設定)は作らない', (tester) async {
+      await pumpHome(tester);
+      expect(find.text('今日やること'), findsOneWidget);
+      expect(find.text('記録'), findsOneWidget);
+      expect(find.text('試験の準備'), findsOneWidget);
+      for (final t in ['道具', '体験ラボ', '設定・その他']) {
+        expect(find.text(t), findsNothing);
+      }
+      // 初回は全て展開。
+      expect(find.byType(StudyReminderCard), findsOneWidget);
+      expect(find.byType(WeeklyRecapCard), findsOneWidget);
+      expect(find.byType(CoreFeaturesCard), findsOneWidget);
+      expect(find.text('出題科目'), findsOneWidget);
+    });
+
+    testWidgets('既存の入口: 推し・一言・カウントダウンが残り、間違いノートは1か所で開ける', (tester) async {
+      await pumpHome(tester, examDate: DateTime.now().add(const Duration(days: 30)));
+      expect(find.byType(OshiMessageBubble), findsOneWidget);
+      expect(find.byType(ExamCountdownSection), findsOneWidget);
+      // 試験日カード(日数表示)は examDate があるときだけ出る。
+      expect(find.byIcon(Icons.event_outlined), findsWidgets);
+      expect(find.text('間違いノート'), findsOneWidget);
+      await tester.tap(find.byType(HomeMenuTile));
+      await _waitForNoteScreen(tester);
+      expect(find.byType(MistakeNoteScreen), findsOneWidget);
+    });
+
+    testWidgets('試験日が未設定なら試験日カードは出ない(条件付き表示の維持)', (tester) async {
+      await pumpHome(tester);
+      expect(find.byIcon(Icons.event_outlined), findsNothing);
+    });
+
+    testWidgets('折りたたみの開閉と保存', (tester) async {
+      final overrides = await pumpHome(tester);
+      expect(find.byType(CoreFeaturesCard), findsOneWidget);
+      await tester.tap(find.text('試験の準備'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(CoreFeaturesCard), findsNothing);
+      expect(find.text('試験の準備'), findsOneWidget);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('ukalab_otsu4_home_section_exam'), isFalse);
+      expect(prefs.getBool('ukalab_otsu4_home_section_today'), isNull);
+      // 作り直しても畳んだまま。
+      await pumpHome(tester, reuse: overrides);
+      expect(find.byType(CoreFeaturesCard), findsNothing);
+      // 開き直すと戻る。
+      await tester.tap(find.text('試験の準備'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(CoreFeaturesCard), findsOneWidget);
+      expect(prefs.getBool('ukalab_otsu4_home_section_exam'), isTrue);
+    });
+
+    testWidgets('狭い幅+大きい文字でもオーバーフローしない', (tester) async {
+      await pumpHome(
+        tester,
+        examDate: DateTime.now().add(const Duration(days: 30)),
+        size: const Size(320, 640),
+        textScale: 2.0,
+      );
+      expect(tester.takeException(), isNull);
+      for (var i = 0; i < 30; i++) {
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+        await tester.pump();
+      }
+      expect(tester.takeException(), isNull);
+    });
   });
 }

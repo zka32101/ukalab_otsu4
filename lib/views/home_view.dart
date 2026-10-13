@@ -1,7 +1,9 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/reminder.dart';
+import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 import '../data/core_features.dart';
@@ -35,10 +37,45 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Object? _error;
   bool _showAccuracyTrend = false;
 
+  /// 分類ごとの開閉状態(初回は全て展開。端末内に保存)。
+  static const _sectionIds = ['today', 'record', 'exam'];
+  static String _prefKey(String id) => 'ukalab_otsu4_home_section_$id';
+  final Map<String, ValueNotifier<bool>> _expanded = {
+    for (final id in _sectionIds) id: ValueNotifier<bool>(true),
+  };
+
   @override
   void initState() {
     super.initState();
     _load();
+    _loadExpanded();
+  }
+
+  @override
+  void dispose() {
+    for (final n in _expanded.values) {
+      n.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _loadExpanded() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      for (final id in _sectionIds) {
+        _expanded[id]!.value = prefs.getBool(_prefKey(id)) ?? true;
+      }
+    } catch (_) {
+      // 読めなければ展開のまま。
+    }
+  }
+
+  Future<void> _saveExpanded(String id, bool v) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_prefKey(id), v);
+    } catch (_) {}
   }
 
   Future<void> _load() async {
@@ -77,154 +114,175 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final weekly = weeklyAnswerSummary(dailyAnswerStats);
     final weeklyAnswered = weekly.fold<int>(0, (sum, e) => sum + e.answered);
     final weeklyCorrect = weekly.fold<int>(0, (sum, e) => sum + e.correct);
+    final termOfDay = glossaryTermOfDay(glossaryTerms, DateTime.now());
+    // 各セクションの中身(隙間は Column の spacing 相当で 12dp)。
+    List<Widget> gap(List<Widget> xs) => [
+          for (var i = 0; i < xs.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            xs[i],
+          ],
+        ];
+    Widget section(String id, String title, IconData icon, List<Widget> children,
+            {String? subtitle}) =>
+        HomeSection(
+          title: title,
+          subtitle: subtitle,
+          leading: Icon(icon, color: theme.colorScheme.primary),
+          collapsible: true,
+          expandedListenable: _expanded[id],
+          onExpandedChanged: (v) => _saveExpanded(id, v),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: gap(children),
+            ),
+          ),
+        );
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
-        if (examDate != null) ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.event_outlined, color: theme.colorScheme.primary),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          examCountdownText(daysUntilExam(examDate, DateTime.now())),
-                          style: theme.textTheme.titleSmall,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (mockHistory.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      passPredictionShortLabel(
-                        predictPassTrend(mockHistory, passPct: level.passRule.totalPct),
-                      ),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-        const StudyReminderCard(),
-        const SizedBox(height: 16),
-        if (showMockReminder) ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(Icons.quiz_outlined, color: theme.colorScheme.secondary),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text('前回の模擬試験から日が経っています。模擬タブで力試しをしてみましょう'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (!showMockReminder && nextMockDate != null) ...[
-          Row(
-            children: [
-              Icon(Icons.event_note_outlined, size: 16, color: theme.colorScheme.secondary),
-              const SizedBox(width: 6),
-              Text(nextMockDateText(nextMockDate, DateTime.now()), style: theme.textTheme.bodySmall),
-            ],
-          ),
-          const SizedBox(height: 16),
-        ],
-        const OshiCard(),
+        // 分類の外(最上部): 推しカードと一言。
+        const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: OshiCard()),
         const SizedBox(height: 8),
         // 推しの一言(無料)。タップで別の一言。
-        const OshiMessageCard(),
-        const SizedBox(height: 16),
-        const ExamCountdownSection(),
-        const CoreFeaturesCard(),
-        const SizedBox(height: 16),
-        // 週間ふりかえり(無料。今週できたことだけを見せる)。
-        WeeklyRecapSection(
-            exam: exam, questions: ref.watch(allQuestionsProvider).valueOrNull ?? const []),
-        const SizedBox(height: 16),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.edit_note_outlined),
-            title: const Text('間違いノート'),
-            subtitle: const Text('間違えた問題を見返して、解き直せます。'),
-            trailing: const Icon(Icons.chevron_right),
+        const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: OshiMessageCard()),
+        // ① 今日やること
+        section('today', '今日やること', Icons.today_outlined, [
+          const StudyReminderCard(),
+          if (showMockReminder)
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(Icons.quiz_outlined, color: theme.colorScheme.secondary),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text('前回の模擬試験から日が経っています。模擬タブで力試しをしてみましょう'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (!showMockReminder && nextMockDate != null)
+            Row(
+              children: [
+                Icon(Icons.event_note_outlined, size: 16, color: theme.colorScheme.secondary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(nextMockDateText(nextMockDate, DateTime.now()),
+                      style: theme.textTheme.bodySmall),
+                ),
+              ],
+            ),
+          if (termOfDay != null) _TermOfDayCard(term: termOfDay),
+          HomeMenuTile(
+            icon: Icons.edit_note_outlined,
+            title: '間違いノート',
+            subtitle: '間違えた問題を見返して、解き直せます。',
             onTap: () => openMistakeNote(context, ref, exam: exam),
           ),
-        ),
-        const SizedBox(height: 16),
-        if (glossaryTermOfDay(glossaryTerms, DateTime.now()) != null) ...[
-          _TermOfDayCard(term: glossaryTermOfDay(glossaryTerms, DateTime.now())!),
-          const SizedBox(height: 16),
-        ],
-        if (weeklyAnswered > 0) ...[
+        ]),
+        // ② 記録
+        section('record', '記録', Icons.insights_outlined, [
+          // 週間ふりかえり(無料。今週できたことだけを見せる)。
+          WeeklyRecapSection(
+              exam: exam, questions: ref.watch(allQuestionsProvider).valueOrNull ?? const []),
+          if (weeklyAnswered > 0)
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text('今週の学習サマリー', style: theme.textTheme.titleSmall)),
+                        IconButton(
+                          tooltip: _showAccuracyTrend ? '解答数のグラフに切り替え' : '正答率の推移に切り替え',
+                          icon: Icon(_showAccuracyTrend ? Icons.bar_chart : Icons.show_chart),
+                          onPressed: () => setState(() => _showAccuracyTrend = !_showAccuracyTrend),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '直近7日間: $weeklyAnswered問 ・ 正答率 ${(weeklyCorrect / weeklyAnswered * 100).round()}%',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
+                    if (_showAccuracyTrend)
+                      _WeeklyAccuracyTrendChart(entries: weekly)
+                    else
+                      _WeeklyAnswerChart(entries: weekly),
+                  ],
+                ),
+              ),
+            ),
+        ]),
+        // ③ 試験の準備(CoreFeaturesCard 自身の見出しが「試験に向けて」のため重複を避けた)
+        section('exam', '試験の準備', Icons.flag_outlined, [
+          if (examDate != null)
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.event_outlined, color: theme.colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            examCountdownText(daysUntilExam(examDate, DateTime.now())),
+                            style: theme.textTheme.titleSmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (mockHistory.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        passPredictionShortLabel(
+                          predictPassTrend(mockHistory, passPct: level.passRule.totalPct),
+                        ),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          const ExamCountdownSection(),
+          const CoreFeaturesCard(),
+          Text('${exam.name}${level.name}', style: theme.textTheme.titleLarge),
+          Text(
+            '全${level.questionCount}問・${(level.timeLimitSec ?? 0) ~/ 60}分・科目別${level.passRule.subjectMinPct?.round() ?? level.passRule.totalPct.round()}%以上で合格',
+            style: theme.textTheme.bodyMedium,
+          ),
           Card(
+            margin: EdgeInsets.zero,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(child: Text('今週の学習サマリー', style: theme.textTheme.titleSmall)),
-                      IconButton(
-                        tooltip: _showAccuracyTrend ? '解答数のグラフに切り替え' : '正答率の推移に切り替え',
-                        icon: Icon(_showAccuracyTrend ? Icons.bar_chart : Icons.show_chart),
-                        onPressed: () => setState(() => _showAccuracyTrend = !_showAccuracyTrend),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '直近7日間: $weeklyAnswered問 ・ 正答率 ${(weeklyCorrect / weeklyAnswered * 100).round()}%',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 12),
-                  if (_showAccuracyTrend)
-                    _WeeklyAccuracyTrendChart(entries: weekly)
-                  else
-                    _WeeklyAnswerChart(entries: weekly),
+                  Text('出題科目', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: 8),
+                  for (final s in exam.subjects)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text('・${s.name}'),
+                    ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
-        ],
-        Text('${exam.name}${level.name}', style: theme.textTheme.headlineSmall),
-        const SizedBox(height: 4),
-        Text(
-          '全${level.questionCount}問・${(level.timeLimitSec ?? 0) ~/ 60}分・科目別${level.passRule.subjectMinPct?.round() ?? level.passRule.totalPct.round()}%以上で合格',
-          style: theme.textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('出題科目', style: theme.textTheme.titleSmall),
-                const SizedBox(height: 8),
-                for (final s in exam.subjects)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text('・${s.name}'),
-                  ),
-              ],
-            ),
-          ),
-        ),
+        ]),
       ],
     );
   }
