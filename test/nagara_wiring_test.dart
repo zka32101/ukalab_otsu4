@@ -198,70 +198,81 @@ void main() {
   });
 
   group('履歴への記録', () {
-    testWidgets('誤答のタップは履歴に載り、間違いノートの元データになる。正解は終了時に載る', (tester) async {
-      final speech = FakeSpeechBackend();
+    Future<void> tapChoice(WidgetTester tester, bool correct) async {
+      final prompt = find.textContaining('問題文-');
+      final qid = (tester.widget<Text>(prompt.first).data ?? '').replaceFirst('問題文-', '');
+      await tester.tap(find.text('${correct ? '正解' : '誤り'}-$qid').first);
+      await tester.pump();
+    }
+
+    Future<ProviderContainer> start(WidgetTester tester, int n) async {
       final container = await _pump(
         tester,
-        NagaraStudyView(pool: [_q('a'), _q('b')]),
-        speech,
+        NagaraStudyView(pool: [for (var i = 0; i < n; i++) _q('q$i')]),
+        FakeSpeechBackend(),
         settings: const HandsFreeSettings(thinkSeconds: 10, betweenSeconds: 0),
       );
       await _settle(tester);
+      return container;
+    }
 
-      Future<void> tapChoice(bool correct) async {
-        final prompt = find.textContaining('問題文-');
-        final qid = (tester.widget<Text>(prompt.first).data ?? '').replaceFirst('問題文-', '');
-        await tester.tap(find.text('${correct ? '正解' : '誤り'}-$qid').first);
-        await tester.pump();
-      }
-
-      // 1問目: 誤答。タップした時点で履歴に載る。
-      await tapChoice(false);
-      await tester.runAsync(() => container.read(historyProvider.notifier).ready);
+    Future<List<ProgressRecord>> history(WidgetTester tester, ProviderContainer c) async {
+      await tester.runAsync(() => c.read(historyProvider.notifier).ready);
       await tester.pump();
-      var history = container.read(historyProvider);
-      expect(history.length, 1);
-      expect(history.single.correct, isFalse);
+      return c.read(historyProvider);
+    }
+
+    testWidgets('正答・誤答のタップが、1問ごとにその場で履歴に載る(二重に載らない)', (tester) async {
+      final container = await start(tester, 2);
+      await tapChoice(tester, false);
+      var h = await history(tester, container);
+      expect(h.map((r) => r.correct).toList(), [false]);
       expect(container.read(dailyAnswerStatsProvider).isNotEmpty, isTrue);
 
-      // 次の問題へ(読み終えて、間が0秒)。
       await _advance(tester, 1);
-      await tapChoice(true);
-      await _advance(tester, 1);
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-      await tester.pump();
+      await tapChoice(tester, true);
+      h = await history(tester, container);
+      expect(h.map((r) => r.correct).toList(), [false, true]);
 
-      // 2問とも終わった(終了)。正解も同じ経路で履歴に載る。
+      // 終わっても増えない。間違いノートの元データは誤答の1件。
+      await _advance(tester, 2);
       expect(find.text('おつかれさまでした'), findsOneWidget);
-      history = container.read(historyProvider);
-      expect(history.map((r) => r.correct).toList(), [false, true]);
-      final notes = mistakeNoteEngine.update(const [], history);
-      expect(notes.length, 1);
+      h = await history(tester, container);
+      expect(h.length, 2);
+      expect(mistakeNoteEngine.update(const [], h).length, 1);
     });
 
-    testWidgets('考える間に答えなかった問題も、間違いとして履歴に載る', (tester) async {
-      final container =
-          await _pump(tester, NagaraStudyView(pool: [_q('a')]), FakeSpeechBackend());
-      await _settle(tester);
-      await _advance(tester, 2); // 考える間(1秒)が過ぎる
-      await tester.runAsync(() => container.read(historyProvider.notifier).ready);
+    testWidgets('終了ボタンで抜けても、解答済みの分は残る', (tester) async {
+      final container = await start(tester, 3);
+      await tapChoice(tester, true);
+      await _advance(tester, 1);
+      await tester.tap(find.text('終了'));
       await tester.pump();
-      final history = container.read(historyProvider);
-      expect(history.length, 1);
-      expect(history.single.qid, 'a');
-      expect(history.single.correct, isFalse);
-      await tester.pumpWidget(const SizedBox());
+      expect((await history(tester, container)).length, 1);
     });
 
-    testWidgets('スキップした問題は正解として記録しない(件数が合わないとき正解を記録しない)', (tester) async {
+    testWidgets('画面を戻って抜けても、解答済みの分は残る', (tester) async {
+      final container = await start(tester, 3);
+      await tapChoice(tester, false);
+      await tester.pumpWidget(const SizedBox());
+      expect((await history(tester, container)).map((r) => r.correct).toList(), [false]);
+    });
+
+    testWidgets('考える間に答えなかった問題は履歴に載らない', (tester) async {
       final container = await _pump(tester, NagaraStudyView(pool: [_q('a')]), FakeSpeechBackend());
       await _settle(tester);
+      await _advance(tester, 3); // 考える間(1秒)が過ぎて終わる
+      expect(find.text('おつかれさまでした'), findsOneWidget);
+      expect(await history(tester, container), isEmpty);
+    });
+
+    testWidgets('スキップした問題は履歴に載らない。スキップ前の解答は残る', (tester) async {
+      final container = await start(tester, 3);
+      await tapChoice(tester, true);
+      await _advance(tester, 1);
       await tester.tap(find.text('スキップ'));
       await _advance(tester, 1);
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-      await tester.pump();
-      expect(find.text('おつかれさまでした'), findsOneWidget);
-      expect(container.read(historyProvider), isEmpty);
+      expect((await history(tester, container)).map((r) => r.correct).toList(), [true]);
     });
   });
 
@@ -277,7 +288,7 @@ void main() {
       expect(find.text('おつかれさまでした'), findsOneWidget);
       expect(find.textContaining('ひと休み'), findsOneWidget);
       await tester.runAsync(() => container.read(historyProvider.notifier).ready);
-      expect(container.read(historyProvider).length, 2); // 2問だけ(未回答として)
+      expect(container.read(historyProvider), isEmpty); // 未回答は載らない
     });
 
     testWidgets('既定の上限は20問', (tester) async {

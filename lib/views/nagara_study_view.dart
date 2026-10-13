@@ -34,10 +34,6 @@ class _NagaraStudyViewState extends ConsumerState<NagaraStudyView> {
   List<Question>? _picked;
   late final int _seed = DateTime.now().millisecondsSinceEpoch;
 
-  /// 間違い・未回答として記録済みの問題ID(正解の推定で除く)。
-  final Set<String> _recordedWrong = {};
-  bool _recordedCorrect = false;
-
   @override
   void initState() {
     super.initState();
@@ -70,24 +66,10 @@ class _NagaraStudyViewState extends ConsumerState<NagaraStudyView> {
 
   Question _byId(String id) => _picked!.firstWhere((q) => q.qid == id);
 
-  /// 間違い・未回答は、その場で通常の解答と同じ経路に記録する(間違いノートは解答履歴から作られる)。
-  void _recordWrong(String qid) {
-    if (!_recordedWrong.add(qid)) return;
-    recordPracticeAnswer(ref, _byId(qid), correct: false, isActive: () => mounted);
-  }
-
-  /// 正解は、キットが1問ごとの通知を持たないため、終了時にまとめて記録する。
-  /// 「スキップした問題」と「正解した問題」は終了時点では区別できないので、
-  /// 件数が一致する(スキップが無かった)ときだけ記録する。
-  void _onFinished(NagaraSessionState summary) {
-    if (_recordedCorrect || !mounted) return;
-    _recordedCorrect = true;
-    final done = _picked!.take(summary.completed).toList();
-    final unreported = [for (final q in done) if (!_recordedWrong.contains(q.qid)) q];
-    if (unreported.length != summary.correctCount) return;
-    for (final q in unreported) {
-      recordPracticeAnswer(ref, q, correct: true, isActive: () => mounted);
-    }
+  /// タップで答えた問題は、正答・誤答とも1問ごとに、通常の解答と同じ経路に記録する
+  /// (間違いノートは解答履歴から作られる)。未回答・スキップは記録しない。
+  void _onAnswered(NagaraQuestion q, int chosen, bool correct) {
+    recordPracticeAnswer(ref, _byId(q.id), correct: correct, isActive: () => mounted);
   }
 
   @override
@@ -111,9 +93,7 @@ class _NagaraStudyViewState extends ConsumerState<NagaraStudyView> {
                       ),
                   ],
                   maxQuestions: widget.limit,
-                  onWrongAnswer: (q, chosen) => _recordWrong(q.id),
-                  onUnanswered: (q) => _recordWrong(q.id),
-                  onFinished: _onFinished,
+                  onAnswered: _onAnswered,
                   onClose: () => Navigator.of(context).maybePop(),
                 ),
     );
