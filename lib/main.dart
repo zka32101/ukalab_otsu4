@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:app_common_kit/app_common_kit.dart';
+import 'package:ukalab_core/cross_promo.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,6 +134,10 @@ void main() async {
       'otsu4_premium': EntitlementState(hasPremium: true),
     },
   );
+
+  // 相互紹介（ukalab_core）。Firebase 初期化と Remote Config 取得を内部でまとめて行い、
+  // 失敗（設定ファイル未配置など）しても例外を投げず起動を止めない。
+  unawaited(UkalabCrossPromo.init());
 
   runApp(
     ProviderScope(

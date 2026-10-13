@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 import 'package:ukalab_core/achievements.dart';
+import 'package:ukalab_core/cross_promo.dart';
 import '../data/answered_questions_store.dart';
+import '../data/cross_promo_setup.dart';
 import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
@@ -220,12 +222,9 @@ class SettingsView extends ConsumerWidget {
               '自分用メモ等）は、テーマ・リマインダー設定・試験日・ブックマーク・'
               '用語集のお気に入りを除いて、書き出し・読み込み・リセットができます。',
         ),
-        const SizedBox(height: 24),
-        Text('このアプリについて', style: theme.textTheme.titleSmall),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(0, 8, 0, 12),
-          child: Text(appDisclaimer, style: TextStyle(fontSize: 12, height: 1.6)),
-        ),
+        // 他のうかラボ（資格系）アプリの紹介。掲載リストが空なら何も表示しない。
+        // 大人向けアプリなので isChildDirected は付けない。
+        const UkalabCrossPromoSection(currentAppId: kCrossPromoAppId),
         Card(
           child: ListTile(
             leading: const Icon(Icons.gavel_outlined),
