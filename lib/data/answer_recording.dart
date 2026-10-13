@@ -6,6 +6,7 @@ import 'answered_questions_store.dart';
 import 'daily_answer_stats_store.dart';
 import 'exercise_coins.dart';
 import 'history_store.dart';
+import 'review_schedule.dart';
 import 'srs_store.dart';
 import 'subject_stats_history_store.dart';
 import 'subject_stats_store.dart';
@@ -25,7 +26,10 @@ void recordPracticeAnswer(
   bool Function()? isActive,
 }) {
   bool active() => isActive?.call() ?? true;
-  ref.read(historyProvider.notifier).record(q, correct: correct);
+  // 履歴の時刻と復習予定の時刻を揃える(復習より後の間違いと見なされて段0に戻るのを避ける)。
+  final now = DateTime.now();
+  ref.read(historyProvider.notifier).record(q, correct: correct, at: now);
+  ref.read(reviewScheduleProvider.notifier).applyResult(q.qid, correct: correct, now: now);
   recordExerciseAnswer(ref, correct: correct);
   ref.read(dailyAnswerStatsProvider.notifier).recordAnswer(correct: correct);
   ref.read(srsProvider.notifier).review(qid: q.qid, correct: correct);

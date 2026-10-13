@@ -23,6 +23,17 @@ import 'choice_labels.dart';
 import 'mock_review_view.dart';
 import 'mock_study_links_view.dart';
 
+/// 今回の解答から、結果分析に渡す入力を作る。分野は科目(`subjectId`)単位にする
+/// (出題の `topicId` は論点ごとに細かく、1問ずつでは正答率が出ないため)。
+/// 未回答は不正解として数える(採点と同じ)。
+List<MockExamAnswer> mockExamAnswersFor(List<Question> picked, Map<String, Object?> answers) => [
+      for (final q in picked)
+        MockExamAnswer(
+          topicId: q.subjectId,
+          correct: answers[q.qid] is int && answers[q.qid] == q.answerIndex,
+        ),
+    ];
+
 /// 模擬試験。35問・2時間・科目別60%以上で合否判定（ExamConfig準拠）。
 /// 出題は `pickMockExamQuestions` で科目別の配分（法令15／物理化学10／
 /// 性質消火10）どおりに選ぶ。制限時間（`LevelConfig.timeLimitSec`）は
@@ -244,54 +255,66 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
 
     final result = _result;
     if (result != null) {
+      // 結果の分析カードが加わって縦に長くなるので、スクロールできるようにする。
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ResultSummary(
-              correct: result.total.score,
-              total: result.total.max,
-              passRatio: _currentLevel(exam).passRule.totalPct / 100,
-              passedText: result.passed ? '合格ライン到達' : '科目の足切りに注意',
-              onRetry: _start,
-            ),
-            if (result.bySubject.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _SubjectResultCard(
-                exam: exam,
-                bySubject: result.bySubject,
-                shortfalls: result.subjectShortfalls,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ResultSummary(
+                correct: result.total.score,
+                total: result.total.max,
+                passRatio: _currentLevel(exam).passRule.totalPct / 100,
+                passedText: result.passed ? '合格ライン到達' : '科目の足切りに注意',
+                onRetry: _start,
               ),
-            ],
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () => _showResultShareCard(context, result),
-              child: const Text('結果カードを見る'),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => MockStudyLinksView(
-                    exam: exam,
-                    shortfallSubjectIds: result.subjectShortfalls.keys.toList(),
-                  ),
+              // 結果の分析(科目ごとの正答率・次にやる分野)。今回の解答だけから作り、何も保存しない。
+              if (_picked != null && _picked!.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                MockExamAnalysisCard(
+                  analysis: const MockExamAnalysisEngine().analyze(mockExamAnswersFor(_picked!, _answers)),
+                  topicLabel: (id) => exam.subject(id)?.name ?? id,
                 ),
+              ],
+              if (result.bySubject.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                _SubjectResultCard(
+                  exam: exam,
+                  bySubject: result.bySubject,
+                  shortfalls: result.subjectShortfalls,
+                ),
+              ],
+              const SizedBox(height: 16),
+              OutlinedButton(
+                onPressed: () => _showResultShareCard(context, result),
+                child: const Text('結果カードを見る'),
               ),
-              child: const Text('学習教材リンク集を見る'),
-            ),
-            if (_wrongQuestions.isNotEmpty) ...[
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => MockReviewView(questions: _wrongQuestions, answers: _answers),
+                    builder: (_) => MockStudyLinksView(
+                      exam: exam,
+                      shortfallSubjectIds: result.subjectShortfalls.keys.toList(),
+                    ),
                   ),
                 ),
-                child: Text('間違えた問題を振り返る（${_wrongQuestions.length}問）'),
+                child: const Text('学習教材リンク集を見る'),
               ),
+              if (_wrongQuestions.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MockReviewView(questions: _wrongQuestions, answers: _answers),
+                    ),
+                  ),
+                  child: Text('間違えた問題を振り返る（${_wrongQuestions.length}問）'),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       );
     }
