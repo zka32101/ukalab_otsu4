@@ -41,7 +41,8 @@ class _HostState extends ConsumerState<_Host> {
             },
             child: Text(q.choices[i]),
           ),
-        AnswerFeedbackPanel(
+        if (selected != null) // 本体も解答後(_answered)にだけ置く
+          AnswerFeedbackPanel(
           question: q,
           selectedIndex: selected,
           onCause: (c) => ref.read(historyProvider.notifier).setCause(q.qid, c),
