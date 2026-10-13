@@ -148,6 +148,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         // 推しの一言(無料)。タップで別の一言。
         const OshiMessageCard(),
         const SizedBox(height: 16),
+        const ExamCountdownSection(),
         const CoreFeaturesCard(),
         const SizedBox(height: 16),
         // 週間ふりかえり(無料。今週できたことだけを見せる)。
