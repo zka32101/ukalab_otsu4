@@ -7,6 +7,7 @@ import 'combo_store.dart';
 import 'daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'glossary_mastered_store.dart';
+import 'history_store.dart';
 import 'mock_history_store.dart';
 import 'mock_wrong_store.dart';
 import 'progress_store.dart';
@@ -27,6 +28,12 @@ List<Map<String, dynamic>> _maps(Object? json) => (json as List).cast<Map<String
 ///
 /// 各 `id` は、共通化前のバックアップJSONのキーと同じ（互換のため変えない）。
 final List<DataPart> otsu4DataParts = [
+  DataPart(
+    id: 'history',
+    export: (ref) => encodeHistory(ref.read(historyProvider)),
+    restore: (ref, json) => ref.read(historyProvider.notifier).replace(decodeHistory(json as String?)),
+    reset: (ref) => ref.read(historyProvider.notifier).reset(),
+  ),
   DataPart(
     id: 'progress',
     export: (ref) => ref.read(progressProvider).toJson(),

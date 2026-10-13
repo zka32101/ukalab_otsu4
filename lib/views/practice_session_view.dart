@@ -9,12 +9,14 @@ import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import '../data/exercise_coins.dart';
 import '../data/glossary.dart';
+import '../data/history_store.dart';
 import '../data/recent_questions.dart';
 import '../data/srs_store.dart';
 import '../data/subject_stats_history_store.dart';
 import '../data/subject_stats_store.dart';
 import 'choice_labels.dart';
 import 'glossary_card_view.dart';
+import 'package:ukalab_core/answer_feedback.dart' show AnswerFeedbackPanel;
 import 'package:ukalab_core/ui.dart' show BookmarkToggleButton, QuestionMemoField, TappableTermText;
 
 /// 一問一答の演習（`Question` のプール）共通部分。[pool] が空なら
@@ -73,7 +75,8 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
   }
 
   void _select(int i) {
-    final subjectId = _session!.current!.subjectId;
+    final answeredQ = _session!.current!;
+    final subjectId = answeredQ.subjectId;
     final record = _session!.answer(i);
     setState(() {
       _selected = i;
@@ -83,6 +86,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     if (record.correct) {
       ref.read(comboProvider.notifier).recordCombo(_combo);
     }
+    ref.read(historyProvider.notifier).record(answeredQ, correct: record.correct);
     recordExerciseAnswer(ref, correct: record.correct);
     ref.read(dailyAnswerStatsProvider.notifier).recordAnswer(correct: record.correct);
     ref.read(srsProvider.notifier).review(qid: record.qid, correct: record.correct);
@@ -197,6 +201,14 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
                     ),
             );
           }),
+          const SizedBox(height: 12),
+          // 不正解のときだけ表示される（原因ラベル・違いの比較・対策）。
+          AnswerFeedbackPanel(
+            key: ValueKey('feedback-${q.qid}'),
+            question: q,
+            selectedIndex: _selected,
+            onCause: (c) => ref.read(historyProvider.notifier).setCause(q.qid, c),
+          ),
           const SizedBox(height: 12),
           QuestionMemoField(key: ValueKey(q.qid), qid: q.qid),
           const SizedBox(height: 16),
