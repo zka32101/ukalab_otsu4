@@ -24,6 +24,7 @@ import '../data/theme_store.dart';
 import '../data/today_highlight.dart';
 import 'exam_prep_entry.dart';
 import 'mistake_note_screen.dart';
+import 'nagara_settings_section.dart';
 import 'focus_training_view.dart';
 import 'source_credits_view.dart';
 
@@ -207,6 +208,8 @@ class SettingsView extends ConsumerWidget {
         ],
         const SizedBox(height: 24),
         const ReminderSettingsSection(showMockReminder: true),
+        const SizedBox(height: 24),
+        const NagaraSettingsSection(),
         const SizedBox(height: 24),
         DataManagementSection(
           parts: otsu4DataParts,

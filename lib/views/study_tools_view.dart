@@ -7,6 +7,7 @@ import 'glossary_card_view.dart';
 import 'memo_list_view.dart';
 import 'mock_report_view.dart';
 import 'mock_wrong_review_view.dart';
+import 'nagara_study_view.dart';
 import 'question_search_view.dart';
 import 'reading_list_view.dart';
 import 'recent_glossary_terms_view.dart';
@@ -49,6 +50,14 @@ class StudyToolsView extends StatelessWidget {
             description: '正答率が低い分野だけを優先的に演習します',
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const FocusTrainingView()),
+            ),
+          ),
+          _ToolTile(
+            icon: Icons.headphones_outlined,
+            title: 'ながら学習',
+            description: '問題と解説を読み上げて、自動で進めます。画面を点けたまま、耳で学べます',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const NagaraStudyView()),
             ),
           ),
           _ToolTile(

@@ -140,34 +140,36 @@ void main() async {
   // 失敗（設定ファイル未配置など）しても例外を投げず起動を止めない。
   unawaited(UkalabCrossPromo.init());
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        entitlementServiceProvider.overrideWithValue(entitlementService),
-        coinServiceProvider.overrideWithValue(coinService),
-        outfitServiceProvider.overrideWithValue(outfitService),
-        progressServiceProvider.overrideWithValue(progressService),
-        srsServiceProvider.overrideWithValue(srsService),
-        mockHistoryServiceProvider.overrideWithValue(mockHistoryService),
-        mockWrongServiceProvider.overrideWithValue(mockWrongService),
-        ...studyNotes,
-        ...dailyGoalOverridesList,
-        subjectStatsServiceProvider.overrideWithValue(subjectStatsService),
-        subjectStatsHistoryServiceProvider.overrideWithValue(subjectStatsHistoryService),
-        themeServiceProvider.overrideWithValue(themeService),
-        examDateServiceProvider.overrideWithValue(examDateService),
-        selectedLevelServiceProvider.overrideWithValue(selectedLevelService),
-        answeredQuestionsServiceProvider.overrideWithValue(answeredQuestionsService),
-        glossaryFavoriteServiceProvider.overrideWithValue(glossaryFavoriteService),
-        learnedTermsInitialProvider.overrideWithValue(learnedTerms),
-        ...reminderOverridesList,
-        recentGlossaryTermsServiceProvider.overrideWithValue(recentGlossaryTermsService),
-        comboServiceProvider.overrideWithValue(comboService),
-        dailyAnswerStatsServiceProvider.overrideWithValue(dailyAnswerStatsService),
-        ...achievementUnlockOverridesList,
-        achievementsOverride,
-      ],
-      child: const Otsu4App(),
-    ),
+  // ながら学習(ハンズフリー)の設定。端末内に保存する。起動時に読み込む。
+  final container = ProviderContainer(
+    overrides: [
+      handsFreeStoreProvider.overrideWithValue(SharedPreferencesHandsFreeStore('otsu4')),
+      entitlementServiceProvider.overrideWithValue(entitlementService),
+      coinServiceProvider.overrideWithValue(coinService),
+      outfitServiceProvider.overrideWithValue(outfitService),
+      progressServiceProvider.overrideWithValue(progressService),
+      srsServiceProvider.overrideWithValue(srsService),
+      mockHistoryServiceProvider.overrideWithValue(mockHistoryService),
+      mockWrongServiceProvider.overrideWithValue(mockWrongService),
+      ...studyNotes,
+      ...dailyGoalOverridesList,
+      subjectStatsServiceProvider.overrideWithValue(subjectStatsService),
+      subjectStatsHistoryServiceProvider.overrideWithValue(subjectStatsHistoryService),
+      themeServiceProvider.overrideWithValue(themeService),
+      examDateServiceProvider.overrideWithValue(examDateService),
+      selectedLevelServiceProvider.overrideWithValue(selectedLevelService),
+      answeredQuestionsServiceProvider.overrideWithValue(answeredQuestionsService),
+      glossaryFavoriteServiceProvider.overrideWithValue(glossaryFavoriteService),
+      learnedTermsInitialProvider.overrideWithValue(learnedTerms),
+      ...reminderOverridesList,
+      recentGlossaryTermsServiceProvider.overrideWithValue(recentGlossaryTermsService),
+      comboServiceProvider.overrideWithValue(comboService),
+      dailyAnswerStatsServiceProvider.overrideWithValue(dailyAnswerStatsService),
+      ...achievementUnlockOverridesList,
+      achievementsOverride,
+    ],
   );
+  await container.read(handsFreeProvider.notifier).load();
+
+  runApp(UncontrolledProviderScope(container: container, child: const Otsu4App()));
 }

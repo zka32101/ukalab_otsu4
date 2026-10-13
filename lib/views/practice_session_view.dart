@@ -3,17 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
-import '../data/answered_questions_store.dart';
+import '../data/answer_recording.dart';
 import '../data/combo_store.dart';
-import '../data/daily_answer_stats_store.dart';
-import 'package:ukalab_core/daily_goal.dart';
-import '../data/exercise_coins.dart';
 import '../data/glossary.dart';
 import '../data/history_store.dart';
 import '../data/recent_questions.dart';
-import '../data/srs_store.dart';
-import '../data/subject_stats_history_store.dart';
-import '../data/subject_stats_store.dart';
 import 'choice_labels.dart';
 import 'glossary_card_view.dart';
 import 'package:ukalab_core/answer_feedback.dart' show AnswerFeedbackPanel;
@@ -80,7 +74,6 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
 
   void _select(int i) {
     final answeredQ = _session!.current!;
-    final subjectId = answeredQ.subjectId;
     final record = _session!.answer(i);
     setState(() {
       _selected = i;
@@ -90,27 +83,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     if (record.correct) {
       ref.read(comboProvider.notifier).recordCombo(_combo);
     }
-    ref.read(historyProvider.notifier).record(answeredQ, correct: record.correct);
-    recordExerciseAnswer(ref, correct: record.correct);
-    ref.read(dailyAnswerStatsProvider.notifier).recordAnswer(correct: record.correct);
-    ref.read(srsProvider.notifier).review(qid: record.qid, correct: record.correct);
-    ref.read(dailyGoalProvider.notifier).recordAnswer().then((_) {
-      if (!mounted) return;
-      final goal = ref.read(dailyGoalProvider);
-      ref.read(dailyGoalHistoryProvider.notifier).recordSnapshot(
-            date: goal.todayDate ?? DateTime.now(),
-            count: goal.todayCount,
-            achieved: goal.achieved,
-          );
-    });
-    ref.read(answeredQuestionsProvider.notifier).record(record.qid);
-    ref
-        .read(subjectStatsProvider.notifier)
-        .recordAnswer(subjectId: subjectId, correct: record.correct)
-        .then((_) {
-      if (!mounted) return;
-      ref.read(subjectStatsHistoryProvider.notifier).recordSnapshot(ref.read(subjectStatsProvider));
-    });
+    recordPracticeAnswer(ref, answeredQ, correct: record.correct, isActive: () => mounted);
   }
 
   void _next() => setState(() {
