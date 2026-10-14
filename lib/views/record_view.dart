@@ -353,9 +353,13 @@ class MockHistoryRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${entry.score}/${entry.max}（${entry.pct.round()}%）',
-                style: theme.textTheme.bodySmall,
+              Flexible(
+                flex: 2,
+                child: Text(
+                  '${entry.score}/${entry.max}（${entry.pct.round()}%）',
+                  style: theme.textTheme.bodySmall,
+                  textAlign: TextAlign.end,
+                ),
               ),
             ],
           ),
@@ -601,7 +605,8 @@ class SubjectTrendRow extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: theme.textTheme.bodyMedium),
+              Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+              const SizedBox(width: 8),
               Text('${(latest * 100).round()}%', style: theme.textTheme.bodySmall),
             ],
           ),
@@ -850,7 +855,8 @@ class _WeakMapBar extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(label, style: theme.textTheme.bodyMedium),
+                Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+                const SizedBox(width: 8),
                 Row(
                   children: [
                     Text(
@@ -912,9 +918,13 @@ class SubjectStatRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            '${stat.correct}/${stat.answered}（${(stat.accuracy * 100).round()}%）',
-            style: theme.textTheme.bodySmall,
+          Flexible(
+            flex: 2,
+            child: Text(
+              '${stat.correct}/${stat.answered}（${(stat.accuracy * 100).round()}%）',
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.end,
+            ),
           ),
         ],
       ),
@@ -1004,8 +1014,9 @@ class _StatRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: theme.textTheme.bodyMedium),
-          Text(value, style: theme.textTheme.titleSmall),
+          Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+          const SizedBox(width: 12),
+          Flexible(child: Text(value, style: theme.textTheme.titleSmall, textAlign: TextAlign.end)),
         ],
       ),
     );
