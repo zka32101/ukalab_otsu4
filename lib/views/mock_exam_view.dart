@@ -499,21 +499,27 @@ class _SubjectResultCard extends StatelessWidget {
                       children: [
                         Expanded(child: Text(_subjectName(id), style: theme.textTheme.bodyMedium)),
                         const SizedBox(width: 8),
-                        Row(
-                          children: [
-                            if (shortfalls.containsKey(id)) ...[
-                              Icon(Icons.warning_amber_outlined,
-                                  size: 16, color: theme.colorScheme.error),
-                              const SizedBox(width: 4),
-                            ],
-                            Text(
-                              '${bySubject[id]!.score}/${bySubject[id]!.max}'
-                              '（${bySubject[id]!.pct.round()}%）',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: shortfalls.containsKey(id) ? theme.colorScheme.error : null,
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (shortfalls.containsKey(id)) ...[
+                                Icon(Icons.warning_amber_outlined,
+                                    size: 16, color: theme.colorScheme.error),
+                                const SizedBox(width: 4),
+                              ],
+                              Flexible(
+                                child: Text(
+                                  '${bySubject[id]!.score}/${bySubject[id]!.max}'
+                                  '（${bySubject[id]!.pct.round()}%）',
+                                  textAlign: TextAlign.end,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: shortfalls.containsKey(id) ? theme.colorScheme.error : null,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

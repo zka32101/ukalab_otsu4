@@ -177,12 +177,14 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
               Icon(Icons.local_fire_department_outlined,
                   size: 16, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 4),
-              Text(
-                '$_combo問連続正解中',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
+              Flexible(
+                child: Text(
+                  '$_combo問連続正解中',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                ),
               ),
             ],
           ),

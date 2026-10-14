@@ -17,35 +17,40 @@ final _vScroll = find.byWidgetPredicate((w) => w is Scrollable && w.axis == Axis
 
 Future<void> scrollTop(WidgetTester tester) async {
   if (_vScroll.evaluate().isEmpty) return;
-  await tester.drag(_vScroll.first, const Offset(0, 4000), warnIfMissed: false);
+  // ドラッグ量に頼らず先頭へ戻す（文字3倍では画面が数千px以上になり、1回のドラッグでは戻りきらない）。
+  tester.state<ScrollableState>(_vScroll.first).position.jumpTo(0);
   await tester.pump();
 }
 
 /// [target] が見えるまで画面をスクロールしてからタップする。見つからなければ false。
 Future<bool> tapScrolling(WidgetTester tester, Finder target, {bool toTop = false}) async {
-  if (toTop && _vScroll.evaluate().isNotEmpty) {
-    await tester.drag(_vScroll.first, const Offset(0, 4000), warnIfMissed: false);
-    await tester.pump();
-  }
-  if (target.evaluate().isEmpty) {
-    final scrollable = _vScroll;
-    if (scrollable.evaluate().isEmpty) return false;
-    try {
-      await tester.dragUntilVisible(target, scrollable.first, const Offset(0, -200), maxIteration: 80);
-    } catch (_) {
-      return false;
+  // ペース遅れのスナックバーが画面中央や下のボタンに被らないよう、先に閉じておく。
+  Future<void> clearSnackBars() async {
+    if (find.byType(ScaffoldMessenger).evaluate().isNotEmpty) {
+      tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger).first).clearSnackBars();
+      await tester.pump(const Duration(milliseconds: 400));
     }
   }
-  // ペース遅れのスナックバーが下のボタンに被らないよう閉じておく。
-  if (find.byType(ScaffoldMessenger).evaluate().isNotEmpty) {
-    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger).first).clearSnackBars();
-    await tester.pump(const Duration(milliseconds: 400));
+
+  await clearSnackBars();
+  if (toTop) await scrollTop(tester);
+  // 対象が組み立てられるまで、縦スクロールを少しずつ送る（ヒットしない位置のドラッグは握りつぶさず、
+  // 毎回スナックバーを閉じてから動かす）。
+  for (var i = 0; i < 200 && target.evaluate().isEmpty; i++) {
+    if (_vScroll.evaluate().isEmpty) return false;
+    await clearSnackBars();
+    await tester.drag(_vScroll.first, const Offset(0, -200), warnIfMissed: false);
+    await tester.pump();
   }
+  await clearSnackBars();
   if (target.evaluate().isEmpty) return false;
   await tester.ensureVisible(target.first);
   await tester.pump();
   if (target.evaluate().isEmpty) return false;
-  await tester.tap(target.first, warnIfMissed: false);
+  // 画面より背の高い選択肢は中心が画面外になるため、左上寄りの位置をタップする。
+  final size = tester.getSize(target.first);
+  final point = tester.getTopLeft(target.first) + Offset(size.width / 2, size.height < 80 ? size.height / 2 : 24);
+  await tester.tapAt(point);
   await tester.pump();
   return true;
 }
@@ -224,12 +229,7 @@ void main() {
         expectNoLayoutErrors(tester, '模試結果');
         // 結果カードのダイアログ（共有用）と、学習教材リンク集。
         final card = find.text('結果カードを見る');
-        if (card.evaluate().isEmpty) {
-          // ランダム出題の組み合わせによっては、テストの操作が途中で進まなくなることがある。
-          // そこまでの画面のはみ出しは検査済み。結果画面の検査だけ省く（表示の不具合ではない）。
-          debugPrint('模試の結果画面には進めませんでした（$stopped）');
-          return;
-        }
+        expect(card, findsOneWidget, reason: '模試の結果画面まで進めている（$stopped）');
         if (card.evaluate().isNotEmpty) {
           await tester.ensureVisible(card);
           await tester.tap(card, warnIfMissed: false);
