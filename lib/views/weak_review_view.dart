@@ -39,13 +39,10 @@ class _WeakReviewViewState extends ConsumerState<WeakReviewView> {
       appBar: AppBar(title: const Text('苦手問題の復習')),
       body: qs == null
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: PracticeSessionView(
-                pool: qs,
-                mode: PracticeMode.weak,
-                emptyMessage: '苦手問題はありません。間違えた問題は、ここに表示されます。',
-              ),
+          : ScrollablePracticeSession(
+              pool: qs,
+              mode: PracticeMode.weak,
+              emptyMessage: '苦手問題はありません。間違えた問題は、ここに表示されます。',
             ),
     );
   }

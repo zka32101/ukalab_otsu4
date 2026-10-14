@@ -41,12 +41,9 @@ class _MockWrongReviewViewState extends ConsumerState<MockWrongReviewView> {
       appBar: AppBar(title: const Text('前回の模試で間違えた問題')),
       body: qs == null
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: PracticeSessionView(
-                pool: qs,
-                emptyMessage: '前回の模試では間違えた問題はありませんでした。',
-              ),
+          : ScrollablePracticeSession(
+              pool: qs,
+              emptyMessage: '前回の模試では間違えた問題はありませんでした。',
             ),
     );
   }
