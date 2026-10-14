@@ -88,14 +88,19 @@ class _QuestionSearchViewState extends ConsumerState<QuestionSearchView> {
               child: all == null
                   ? const Center(child: CircularProgressIndicator())
                   : keywordIsEmpty
-                      ? const EmptyState(
-                          message: 'キーワードを入力すると、関連する用語・問題が見つかります。',
-                          icon: Icons.search,
+                      ? const SingleChildScrollView(
+                          child: EmptyState(
+                            message: 'キーワードを入力すると、関連する用語・問題が見つかります。',
+                            icon: Icons.search,
+                          ),
                         )
                       : matchedTerms.isEmpty && matchedQuestions.isEmpty
-                          ? const EmptyState(
-                              message: '一致する用語・問題は見つかりませんでした。',
-                              icon: Icons.search_off,
+                          // 文字が大きい端末では上の入力欄で残りの高さが足りなくなるため、スクロールできるようにする。
+                          ? const SingleChildScrollView(
+                              child: EmptyState(
+                                message: '一致する用語・問題は見つかりませんでした。',
+                                icon: Icons.search_off,
+                              ),
                             )
                           : ListView(
                               children: [
@@ -121,7 +126,8 @@ class _QuestionSearchViewState extends ConsumerState<QuestionSearchView> {
                                   for (final q in matchedQuestions)
                                     ListTile(
                                       leading: const Icon(Icons.quiz_outlined),
-                                      title: Text(q.prompt, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                      // 問題文は途中で切らず、全文を折り返して表示する。
+                                      title: Text(q.prompt),
                                       onTap: () => Navigator.of(context).push(
                                         MaterialPageRoute(builder: (_) => QuestionDetailView(question: q)),
                                       ),

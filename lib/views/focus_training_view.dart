@@ -53,13 +53,10 @@ class _FocusTrainingViewState extends ConsumerState<FocusTrainingView> {
       appBar: AppBar(title: Text(subjectName == null ? '集中特訓' : '$subjectNameの演習')),
       body: qs == null
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: PracticeSessionView(
-                pool: qs,
-                emptyMessage:
-                    subjectName == null ? '苦手な分野はまだ特定できていません。' : 'この分野の問題データはまだありません。',
-              ),
+          : ScrollablePracticeSession(
+              pool: qs,
+              emptyMessage:
+                  subjectName == null ? '苦手な分野はまだ特定できていません。' : 'この分野の問題データはまだありません。',
             ),
     );
   }

@@ -393,10 +393,13 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
                 color: remaining <= 60 ? Theme.of(context).colorScheme.error : null,
               ),
               const SizedBox(width: 4),
-              Text(
-                '残り ${_formatRemaining(remaining)}',
-                style: TextStyle(
-                  color: remaining <= 60 ? Theme.of(context).colorScheme.error : null,
+              Flexible(
+                child: Text(
+                  '残り ${_formatRemaining(remaining)}',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    color: remaining <= 60 ? Theme.of(context).colorScheme.error : null,
+                  ),
                 ),
               ),
             ],
@@ -408,7 +411,13 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
               children: [
                 Icon(Icons.speed_outlined, size: 16, color: paceColor),
                 const SizedBox(width: 4),
-                Text(paceText, style: TextStyle(fontSize: 12, color: paceColor)),
+                Flexible(
+                  child: Text(
+                    paceText,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 12, color: paceColor),
+                  ),
+                ),
               ],
             ),
           ],
@@ -488,22 +497,29 @@ class _SubjectResultCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_subjectName(id), style: theme.textTheme.bodyMedium),
-                        Row(
-                          children: [
-                            if (shortfalls.containsKey(id)) ...[
-                              Icon(Icons.warning_amber_outlined,
-                                  size: 16, color: theme.colorScheme.error),
-                              const SizedBox(width: 4),
-                            ],
-                            Text(
-                              '${bySubject[id]!.score}/${bySubject[id]!.max}'
-                              '（${bySubject[id]!.pct.round()}%）',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: shortfalls.containsKey(id) ? theme.colorScheme.error : null,
+                        Expanded(child: Text(_subjectName(id), style: theme.textTheme.bodyMedium)),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (shortfalls.containsKey(id)) ...[
+                                Icon(Icons.warning_amber_outlined,
+                                    size: 16, color: theme.colorScheme.error),
+                                const SizedBox(width: 4),
+                              ],
+                              Flexible(
+                                child: Text(
+                                  '${bySubject[id]!.score}/${bySubject[id]!.max}'
+                                  '（${bySubject[id]!.pct.round()}%）',
+                                  textAlign: TextAlign.end,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: shortfalls.containsKey(id) ? theme.colorScheme.error : null,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),

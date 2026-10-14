@@ -133,8 +133,9 @@ class _BookmarkListViewState extends ConsumerState<BookmarkListView> {
               const SizedBox(height: 12),
             ],
             Expanded(
-              child: PracticeSessionView(
+              child: ScrollablePracticeSession(
                 key: ValueKey((filter, tagFilter)),
+                padding: EdgeInsets.zero,
                 pool: filteredQs,
                 emptyMessage: qs.isEmpty
                     ? 'ブックマークはまだありません。一問一答で問題カードのしおりアイコンから登録できます。'

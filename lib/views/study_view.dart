@@ -298,7 +298,8 @@ class _StudyViewState extends ConsumerState<StudyView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(s.name, style: theme.textTheme.bodySmall),
+                              Expanded(child: Text(s.name, style: theme.textTheme.bodySmall)),
+                              const SizedBox(width: 8),
                               Text(
                                 '${((coverage[s.subjectId] ?? 0) * 100).round()}%',
                                 style: theme.textTheme.bodySmall,

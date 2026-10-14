@@ -18,10 +18,7 @@ void _openPractice(
     MaterialPageRoute<void>(
       builder: (_) => Scaffold(
         appBar: AppBar(title: Text(title)),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: PracticeSessionView(pool: pool, emptyMessage: empty),
-        ),
+        body: ScrollablePracticeSession(pool: pool, emptyMessage: empty),
       ),
     ),
   );

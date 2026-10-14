@@ -81,8 +81,8 @@ class _FieldDayViewState extends ConsumerState<FieldDayView> {
           children: [
             Icon(Icons.schedule, color: theme.colorScheme.secondary, size: 20),
             const SizedBox(width: 6),
-            Text(step.timeLabel, style: theme.textTheme.titleSmall),
-            const Spacer(),
+            Expanded(child: Text(step.timeLabel, style: theme.textTheme.titleSmall)),
+            const SizedBox(width: 8),
             Text('${_index + 1} / ${_scenario.steps.length}', style: theme.textTheme.bodySmall),
           ],
         ),
