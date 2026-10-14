@@ -13,6 +13,44 @@ import 'glossary_card_view.dart';
 import 'package:ukalab_core/answer_feedback.dart' show AnswerFeedbackPanel;
 import 'package:ukalab_core/ui.dart' show BookmarkToggleButton, QuestionMemoField, TappableTermText;
 
+/// [PracticeSessionView] を、縦にスクロールできる形で置く。
+///
+/// [PracticeSessionView] 自身は縦に並べるだけでスクロールしないため、画面の高さに収まらない
+/// 長い問題文・選択肢・解説（やアクセシビリティの大きい文字）が下にはみ出して隠れてしまう。
+/// 一問一答（[StudyView]）のようにすでにスクロール内に置く場合は不要。
+/// 最小の高さを画面に合わせるので、空表示は従来どおり中央に出る。
+class ScrollablePracticeSession extends StatelessWidget {
+  const ScrollablePracticeSession({
+    super.key,
+    required this.pool,
+    required this.emptyMessage,
+    this.mode = PracticeMode.practice,
+    this.padding = const EdgeInsets.all(16),
+  });
+
+  final List<Question> pool;
+  final String emptyMessage;
+  final PracticeMode mode;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: padding,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.hasBoundedHeight
+                ? (constraints.maxHeight - padding.vertical).clamp(0, double.infinity)
+                : 0,
+          ),
+          child: PracticeSessionView(pool: pool, emptyMessage: emptyMessage, mode: mode),
+        ),
+      ),
+    );
+  }
+}
+
 /// 一問一答の演習（`Question` のプール）共通部分。[pool] が空なら
 /// [emptyMessage] を表示する。[StudyView]（全体プール）と、苦手問題だけの
 /// 復習（`WeakReviewView`）の両方で使う。直近出題した問題（アプリ起動中のみ
