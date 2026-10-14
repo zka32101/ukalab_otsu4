@@ -35,15 +35,8 @@ OshiGrowthProgress oshiGrowthProgressFor({
   return OshiGrowthProgress(totalAnswered: progress.answered, studyDays: days.length);
 }
 
-OshiGrowthProgress _watchProgress(WidgetRef ref) => oshiGrowthProgressFor(
-      progress: ref.watch(progressProvider),
-      records: ref.watch(historyProvider),
-      mockHistory: ref.watch(mockHistoryProvider),
-      dailyStats: ref.watch(dailyAnswerStatsProvider),
-    );
-
-/// ホーム(記録)の「これまでの積み重ね」への推しの反応(タップで別の一言)。
-/// 表示のたびに、新しく迎えた節目があれば一度だけ祝福ダイアログを出す(複数まとめて迎えても1回)。
+/// ホーム(記録)に置く、推しの成長の節目の見張り役。吹き出し(OshiGrowthBubble)はホームに出さない
+/// (常時表示は「推しの一言」だけ)。表示のたびに、新しく迎えた節目があれば一度だけ祝福ダイアログを出す(複数まとめて迎えても1回)。
 class OshiGrowthSection extends ConsumerStatefulWidget {
   const OshiGrowthSection({super.key});
 
@@ -79,5 +72,12 @@ class _OshiGrowthSectionState extends ConsumerState<OshiGrowthSection> {
   }
 
   @override
-  Widget build(BuildContext context) => OshiGrowthBubble(progress: _watchProgress(ref));
+  Widget build(BuildContext context) {
+    // 表示はしないが、解答履歴の変化を購読して節目の判定を続ける(祝福の発火経路を従来どおり保つ)。
+    ref.watch(progressProvider);
+    ref.watch(historyProvider);
+    ref.watch(mockHistoryProvider);
+    ref.watch(dailyAnswerStatsProvider);
+    return const SizedBox.shrink();
+  }
 }

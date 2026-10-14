@@ -306,9 +306,10 @@ void main() {
       expect(p.studyDays, 3);
     });
 
-    testWidgets('ホーム: 記録に成長の吹き出しが出る(節目に届いていなければ祝福は出ない)', (tester) async {
+    testWidgets('ホーム: 成長の吹き出しは出ない(節目に届いていなければ祝福も出ない)', (tester) async {
       await _pumpHome(tester);
-      expect(find.byType(OshiGrowthBubble), findsOneWidget);
+      expect(find.byType(OshiGrowthSection), findsOneWidget); // 祝福の見張り役は残す
+      expect(find.byType(OshiGrowthBubble, skipOffstage: false), findsNothing);
       expect(find.byType(OshiGrowthCelebrationCard), findsNothing);
     });
 
@@ -327,7 +328,7 @@ void main() {
     });
   });
 
-  group('ホームのレイアウト(今日の復習・成長の吹き出しを含む)', () {
+  group('ホームのレイアウト(今日の復習・成長の見張り役を含む)', () {
     for (final (width, scale) in [(320.0, 1.0), (320.0, 2.0)]) {
       testWidgets('幅 $width・文字 $scale 倍でオーバーフローしない', (tester) async {
         final now = DateTime.now();
@@ -338,7 +339,7 @@ void main() {
           history: [_rec('q1', now.subtract(const Duration(days: 3)), correct: false)],
         );
         expect(find.byType(TodayReviewCard), findsOneWidget);
-        expect(find.byType(OshiGrowthBubble), findsOneWidget);
+        expect(find.byType(OshiGrowthBubble, skipOffstage: false), findsNothing);
         expect(tester.takeException(), isNull);
       });
     }
@@ -351,7 +352,7 @@ void main() {
       final today = find.ancestor(
           of: find.byType(TodayReviewCard), matching: find.byType(HomeSection));
       final record = find.ancestor(
-          of: find.byType(OshiGrowthBubble), matching: find.byType(HomeSection));
+          of: find.byType(OshiGrowthSection), matching: find.byType(HomeSection));
       expect(today, findsOneWidget);
       expect(record, findsOneWidget);
       expect(tester.widget<HomeSection>(today).title, '今日やること');
