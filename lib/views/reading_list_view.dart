@@ -79,10 +79,7 @@ class ReadingDetailView extends ConsumerWidget {
       MaterialPageRoute<void>(
         builder: (_) => Scaffold(
           appBar: AppBar(title: const Text('関連問題')),
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: PracticeSessionView(pool: matched, emptyMessage: '問題が見つかりません。'),
-          ),
+          body: ScrollablePracticeSession(pool: matched, emptyMessage: '問題が見つかりません。'),
         ),
       ),
     );

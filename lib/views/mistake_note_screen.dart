@@ -82,11 +82,8 @@ class _MistakeNoteScreenState extends ConsumerState<MistakeNoteScreen> {
                 await Navigator.of(context).push(MaterialPageRoute<void>(
                   builder: (_) => Scaffold(
                     appBar: AppBar(title: const Text('解き直す')),
-                    body: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: PracticeSessionView(
-                          pool: [q], emptyMessage: '問題が見つかりません。'),
-                    ),
+                    body: ScrollablePracticeSession(
+                        pool: [q], emptyMessage: '問題が見つかりません。'),
                   ),
                 ));
                 if (mounted) await _sync();
