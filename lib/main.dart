@@ -170,6 +170,8 @@ void main() async {
     ],
   );
   await container.read(handsFreeProvider.notifier).load();
+  // 文字の大きさ（アプリ内設定）を復元する
+  await loadSavedTextScale();
 
   runApp(UncontrolledProviderScope(container: container, child: const Otsu4App()));
 }
