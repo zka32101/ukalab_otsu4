@@ -27,12 +27,22 @@ class CharacterPreviewView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('推しを選ぶ')),
-      body: GridView.count(
+      body: GridView(
         padding: const EdgeInsets.all(16),
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.78,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          // 縦横比固定だと文字が大きい端末で名前が下にはみ出すため、
+          // 「余白＋マスコット88＋名前（最大2行・文字倍率に追従）＋選択アイコン」の高さを確保する。
+          mainAxisExtent: 24 +
+              88 +
+              8 +
+              MediaQuery.textScalerOf(context).scale((theme.textTheme.titleSmall?.fontSize ?? 14) * 1.5) * 2 +
+              4 +
+              18 +
+              4,
+        ),
         children: [
           for (final pack in UkalabCharacters.all)
             Card(

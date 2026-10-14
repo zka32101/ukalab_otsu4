@@ -209,6 +209,13 @@ class _GlossaryCardViewState extends ConsumerState<GlossaryCardView> {
       ],
     );
 
+    // 文字が大きい端末ではフィルタが縦に伸びて下の暗記カードを押し出す（はみ出す）ため、
+    // 画面の高さの一定割合までに抑え、それ以上はスクロールで見られるようにする。
+    final cappedFilterRow = ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.35),
+      child: SingleChildScrollView(child: filterRow),
+    );
+
     final historyAction = IconButton(
       icon: const Icon(Icons.history_outlined),
       tooltip: '最近見た用語',
@@ -225,7 +232,7 @@ class _GlossaryCardViewState extends ConsumerState<GlossaryCardView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              filterRow,
+              cappedFilterRow,
               const SizedBox(height: 24),
               const Expanded(
                 child: Center(child: Text('該当する用語がありません。')),
@@ -247,7 +254,7 @@ class _GlossaryCardViewState extends ConsumerState<GlossaryCardView> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            filterRow,
+            cappedFilterRow,
             const SizedBox(height: 12),
             Text(
               '${index + 1} / ${terms.length}',
@@ -266,33 +273,42 @@ class _GlossaryCardViewState extends ConsumerState<GlossaryCardView> {
                       }
                     },
                     child: Card(
-                      child: Center(
-                        child: Padding(
+                      // 定義が長い用語や大きい文字でもカードからはみ出さないよう、中身をスクロールできるようにする
+                      // （短いときは従来どおり中央に置く）。
+                      child: LayoutBuilder(
+                        builder: (context, constraints) => SingleChildScrollView(
                           padding: const EdgeInsets.all(24),
-                          child: _showDefinition
-                              ? Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      term.definition,
-                                      style: theme.textTheme.titleMedium,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: (constraints.maxHeight - 48).clamp(0, double.infinity),
+                            ),
+                            child: Center(
+                              child: _showDefinition
+                                  ? Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          term.definition,
+                                          style: theme.textTheme.titleMedium,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        if (term.note != null) ...[
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            term.note!,
+                                            style: theme.textTheme.bodySmall,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ],
+                                    )
+                                  : Text(
+                                      term.term,
+                                      style: theme.textTheme.headlineSmall,
                                       textAlign: TextAlign.center,
                                     ),
-                                    if (term.note != null) ...[
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        term.note!,
-                                        style: theme.textTheme.bodySmall,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ],
-                                )
-                              : Text(
-                                  term.term,
-                                  style: theme.textTheme.headlineSmall,
-                                  textAlign: TextAlign.center,
-                                ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
