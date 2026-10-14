@@ -120,6 +120,8 @@ class SettingsView extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
+        const TextScaleSetting(strings: TextScaleStrings.ja),
+        const SizedBox(height: 12),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(12),

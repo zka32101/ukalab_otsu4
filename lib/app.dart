@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart' show applyAppTextScale;
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,8 @@ class Otsu4App extends ConsumerWidget {
       theme: UkalabTheme.light(field: UkalabField.tech, cert: UkalabCert.hazmat4),
       darkTheme: UkalabTheme.dark(field: UkalabField.tech, cert: UkalabCert.hazmat4),
       themeMode: themeMode,
+      // 文字の大きさ（設定画面で選ぶ）を端末の文字サイズに掛け合わせる。
+      builder: applyAppTextScale,
       home: UkalabShell(
         pages: [
           HomeView(),
