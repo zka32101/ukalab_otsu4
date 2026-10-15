@@ -145,6 +145,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
+        // 他のうかラボのアプリと同じく、画面の最上部にアプリ名を出す。
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: Text('うかラボ 危険物乙4', style: theme.textTheme.titleLarge),
+        ),
         // 分類の外(最上部): 推しカードと一言。
         const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: OshiCard()),
         const SizedBox(height: 8),
