@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'launch_splash.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'data/achievements_provider.dart';
 import 'data/answered_questions_store.dart';
@@ -29,6 +30,9 @@ import 'data/theme_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 初期化中は起動時画面（アイコン+進行表示）を出す。完了後に本体へ差し替える。
+  runApp(const LaunchSplashApp());
 
   // 学習コイン・衣装（app_common_kit）。財布はアプリごと。端末内に保存する。
   // コインは学習の成長でのみ獲得する（課金・広告視聴での付与はしない）。
