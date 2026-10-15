@@ -18,6 +18,7 @@ import '../widgets/oshi_growth_section.dart';
 import '../widgets/oshi_home_cards.dart';
 import '../widgets/today_review_section.dart';
 import 'exam_prep_entry.dart';
+import '../widgets/cert_prop_badge.dart';
 import 'mistake_note_screen.dart';
 import 'glossary_card_view.dart';
 
@@ -265,10 +266,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           const ExamCountdownSection(),
           const CoreFeaturesCard(),
-          Text('${exam.name}${level.name}', style: theme.textTheme.titleLarge),
-          Text(
-            '全${level.questionCount}問・${(level.timeLimitSec ?? 0) ~/ 60}分・科目別${level.passRule.subjectMinPct?.round() ?? level.passRule.totalPct.round()}%以上で合格',
-            style: theme.textTheme.bodyMedium,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${exam.name}${level.name}', style: theme.textTheme.titleLarge),
+                    Text(
+                      '全${level.questionCount}問・${(level.timeLimitSec ?? 0) ~/ 60}分・科目別${level.passRule.subjectMinPct?.round() ?? level.passRule.totalPct.round()}%以上で合格',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              const CertPropBadge(),
+            ],
           ),
           Card(
             margin: EdgeInsets.zero,

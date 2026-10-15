@@ -14,7 +14,9 @@ import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
 import '../data/data_parts.dart';
 import '../data/exam_date_store.dart';
+import '../data/peer_stats_prep.dart';
 import '../data/progress_store.dart';
+import '../widgets/peer_stats_settings_tile.dart';
 import '../data/question_repository.dart';
 import '../data/exam_repository.dart';
 import '../data/selected_level_store.dart';
@@ -229,6 +231,9 @@ class SettingsView extends ConsumerWidget {
             onTap: () => openMistakeNote(context, ref, exam: exam),
           ),
         const SizedBox(height: 12),
+        // 送信側が未実装の間は出さない（kPeerStatsSettingsVisible = false）。
+        if (kPeerStatsSettingsVisible)
+          PeerStatsSettingsTile(settings: ref.watch(peerStatsSettingsProvider)),
         // 他のうかラボ（資格系）アプリの紹介。掲載リストが空なら何も表示しない。
         // 大人向けアプリなので isChildDirected は付けない。
         const UkalabCrossPromoSection(currentAppId: kCrossPromoAppId),
