@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart' show ResultSummary;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -259,5 +260,41 @@ void main() {
       expect(c.read(historyProvider).single.qid, 'rv1');
       expect(c.read(historyProvider).single.correct, isTrue);
     });
+  });
+
+  // 選択式は解答直後に session.current が次の問題へ進む。解説・正誤の色は「解答した問題」で描く。
+  // 新タイプのフラグの有無に関わらず成り立つ。
+  for (final flag in [false, true]) {
+    testWidgets('選択式(フラグ$flag): 解答直後は解答した問題の解説と正誤で、次へで次の問題', (tester) async {
+      await _pump(tester, [_choice('c1'), _choice('c2')], newTypesEnabled: flag);
+      final firstId = find.text('選択式c1').evaluate().isNotEmpty ? 'c1' : 'c2';
+      final otherId = firstId == 'c1' ? 'c2' : 'c1';
+
+      await tester.tap(find.text('${firstId}の誤り')); // 不正解を選ぶ
+      await _settle(tester);
+
+      expect(find.text('選択式$firstId'), findsOneWidget);
+      expect(find.text('選択式$otherId'), findsNothing);
+      expect(find.text('${firstId}の解説'), findsOneWidget);
+      expect(find.text('${otherId}の解説'), findsNothing);
+
+      await tester.tap(find.text('次の問題'));
+      await tester.pumpAndSettle();
+      expect(find.text('選択式$otherId'), findsOneWidget);
+      expect(find.text('${firstId}の解説'), findsNothing);
+      expect(find.text('${otherId}の解説'), findsNothing); // 未回答なので解説は出ない
+    });
+  }
+
+  testWidgets('選択式: 最後の問題でも、解答直後は結果画面でなく解説が出る', (tester) async {
+    await _pump(tester, [_choice('c1')], newTypesEnabled: false);
+    await tester.tap(find.text('c1の正解'));
+    await _settle(tester);
+    expect(find.text('c1の解説'), findsOneWidget);
+    expect(find.byType(ResultSummary), findsNothing);
+
+    await tester.tap(find.text('次の問題'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ResultSummary), findsOneWidget);
   });
 }
