@@ -18,6 +18,7 @@ class QuestionRepository {
     'assets/questions/property_extinguish_5.jsonl',
     'assets/questions/property_extinguish_6.jsonl',
     'assets/questions/physics_chem.jsonl',
+    'assets/questions/hazmat4_multi_angle.jsonl',
   ];
 
   /// 出題に使う問題を読み込む。[newTypesEnabled] が false（既定は [kNewQuestionTypesEnabled]）の間は、
