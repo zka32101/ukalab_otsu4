@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:ukalab_core/cross_promo.dart';
 import 'package:ukalab_core/ui.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,6 +24,7 @@ import 'data/mock_history_store.dart';
 import 'data/mock_wrong_store.dart';
 import 'data/progress_store.dart';
 import 'data/recent_glossary_terms_store.dart';
+import 'data/revenuecat_config.dart';
 import 'data/selected_level_store.dart';
 import 'data/srs_store.dart';
 import 'data/subject_stats_history_store.dart';
@@ -117,9 +120,18 @@ void main() async {
   // 実績バッジの解除通知済みID（二重通知防止）。端末内に保存する。
   final achievementUnlockOverridesList = await achievementUnlockOverrides('otsu4');
 
-  // 課金（RevenueCat）。実際のAPIキー取得後にRevenueCatEntitlementServiceへ差し替える。
-  // 価格は競合調査を踏まえた暫定値で、運営者確認が必要（決定14）。
-  final entitlementService = FakeEntitlementService(
+  // 課金。公開SDKキー（RC_GOOGLE_KEY / RC_APPLE_KEY。--dart-define で渡し、コミットしない）が
+  // 渡された Android / iOS ビルドだけ RevenueCat を使い、それ以外（未指定・Web）は仮の購入サービス。
+  // 価格（仮サービス側）は競合調査を踏まえた暫定値で、運営者確認が必要（決定14）。
+  // RevenueCat 側は entitlement ID を 'noads' / 'premium'、商品を現行オファリングに登録する。
+  final rcKey = revenueCatKeyFor(
+    isWeb: kIsWeb,
+    isAndroid: !kIsWeb && Platform.isAndroid,
+    isIOS: !kIsWeb && Platform.isIOS,
+  );
+  final EntitlementService entitlementService = rcKey != null
+      ? await RevenueCatEntitlementService.init(publicSdkKey: rcKey)
+      : FakeEntitlementService(
     availableOffers: const [
       EntitlementOffer(
         id: 'noads',
