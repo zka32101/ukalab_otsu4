@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
+import 'feature_flags.dart';
+
 /// 問題データ（JSON Lines）の読み込み。README参照。
 class QuestionRepository {
   const QuestionRepository();
@@ -18,7 +20,9 @@ class QuestionRepository {
     'assets/questions/physics_chem.jsonl',
   ];
 
-  Future<List<Question>> load() async {
+  /// 出題に使う問題を読み込む。[newTypesEnabled] が false（既定は [kNewQuestionTypesEnabled]）の間は、
+  /// データに○×・空欄補充・説明から用語が含まれていても返さない。
+  Future<List<Question>> load({bool newTypesEnabled = kNewQuestionTypesEnabled}) async {
     final questions = <Question>[];
     for (final path in assetPaths) {
       final text = await rootBundle.loadString(path);
@@ -28,7 +32,7 @@ class QuestionRepository {
         questions.add(Question.fromJson(jsonDecode(trimmed) as Map<String, dynamic>));
       }
     }
-    return questions;
+    return selectableQuestions(questions, newTypesEnabled: newTypesEnabled);
   }
 }
 

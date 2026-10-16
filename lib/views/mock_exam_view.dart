@@ -10,6 +10,7 @@ import '../data/answered_questions_store.dart';
 import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import '../data/exam_repository.dart';
+import '../data/feature_flags.dart';
 import '../data/mock_history_store.dart';
 import '../data/mock_pace.dart';
 import '../data/mock_wrong_store.dart';
@@ -98,6 +99,7 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
         pool: _questions!,
         level: level,
         seed: DateTime.now().millisecondsSinceEpoch,
+        allowedTypes: kMockExamAllowedTypes,
       );
       _answers.clear();
       _index = 0;
