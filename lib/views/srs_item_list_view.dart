@@ -73,7 +73,7 @@ class _SrsItemListViewState extends ConsumerState<SrsItemListView> {
                   child: ListTile(
                     leading: CircleAvatar(child: Text('${item.box}')),
                     // 問題文は途中で切らず、全文を折り返して表示する。
-                    title: Text(question.prompt),
+                    title: Text(question.displayPrompt),
                     subtitle: Text(
                       'Box ${item.box} / ${Srs.maxBox} ・ ${_dueText(item.dueAt, now)}',
                       style: theme.textTheme.bodySmall,

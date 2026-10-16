@@ -127,7 +127,7 @@ class _QuestionSearchViewState extends ConsumerState<QuestionSearchView> {
                                     ListTile(
                                       leading: const Icon(Icons.quiz_outlined),
                                       // 問題文は途中で切らず、全文を折り返して表示する。
-                                      title: Text(q.prompt),
+                                      title: Text(q.displayPrompt),
                                       onTap: () => Navigator.of(context).push(
                                         MaterialPageRoute(builder: (_) => QuestionDetailView(question: q)),
                                       ),
