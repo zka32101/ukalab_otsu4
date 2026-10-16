@@ -103,7 +103,7 @@ class ReadingDetailView extends ConsumerWidget {
         relatedQuestions: [
           for (final id in r.relatedQuestionIds)
             for (final q in questions)
-              if (q.qid == id) RelatedQuestionRef(questionId: id, label: q.prompt),
+              if (q.qid == id) RelatedQuestionRef(questionId: id, label: q.displayPrompt),
         ],
         bodyTermReferences: termReferencesIn(allText),
         onRelatedTermTap: (termId) => Navigator.of(context).push(
