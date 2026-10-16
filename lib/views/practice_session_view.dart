@@ -92,9 +92,9 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
   bool _answered = false;
   int _combo = 0;
 
-  /// 新タイプの回答済みの間に画面へ出す問題。[PracticeSession] は解答した時点で
+  /// 回答済みの間に画面へ出す問題（選択式・新タイプ共通）。[PracticeSession] は解答した時点で
   /// 「現在の問題」を次へ進めるため、「次へ」を押すまでは解答した問題で描く。
-  Question? _answeredNewType;
+  Question? _answeredQuestion;
 
   late final List<Question> _pool =
       selectableQuestions(widget.pool, newTypesEnabled: widget.newTypesEnabled);
@@ -120,7 +120,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
             );
       _selected = null;
       _answered = false;
-      _answeredNewType = null;
+      _answeredQuestion = null;
       _combo = 0;
     });
     final session = _session;
@@ -139,6 +139,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     setState(() {
       _selected = i;
       _answered = true;
+      _answeredQuestion = answeredQ;
       _combo = record.correct ? _combo + 1 : 0;
     });
     if (record.correct) {
@@ -168,7 +169,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     }
     setState(() {
       _answered = true;
-      _answeredNewType = q;
+      _answeredQuestion = q;
       _combo = record.correct ? _combo + 1 : 0;
     });
     if (record.correct) {
@@ -248,7 +249,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
   void _next() => setState(() {
         _selected = null;
         _answered = false;
-        _answeredNewType = null;
+        _answeredQuestion = null;
       });
 
   void _retry() => _restart(seed: DateTime.now().millisecondsSinceEpoch);
@@ -267,9 +268,12 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     }
 
     final session = _session!;
-    final answeredNew = _answered ? _answeredNewType : null;
-    if (answeredNew != null) return _buildNewType(answeredNew, session);
-    final q = session.current;
+    // 回答済みの間は、回答した問題で描く（session.current はすでに次の問題）。
+    final answeredQ = _answered ? _answeredQuestion : null;
+    if (answeredQ != null && isNewQuestionType(answeredQ)) {
+      return _buildNewType(answeredQ, session);
+    }
+    final q = answeredQ ?? session.current;
     if (q == null) {
       return ResultSummary(
         correct: session.correctCount,
@@ -289,7 +293,7 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
             Expanded(
               child: QuestionCard(
                 text: q.prompt,
-                index: session.index + 1,
+                index: session.index + (_answered ? 0 : 1),
                 total: session.questions.length,
               ),
             ),
