@@ -28,6 +28,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^3.0.1
 
 flutter:
@@ -38,3 +39,13 @@ flutter:
     - assets/features/
     - assets/questions/
     - assets/readings.jsonl
+
+# アプリアイコン（Android）。素材は images/うかラボ/アイコン/02_完成(最終)。
+# 反映: `dart run flutter_launcher_icons`
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#C23D16"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  min_sdk_android: 21
