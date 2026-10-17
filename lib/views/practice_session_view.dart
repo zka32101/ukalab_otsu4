@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -246,11 +248,17 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     );
   }
 
-  void _next() => setState(() {
-        _selected = null;
-        _answered = false;
-        _answeredQuestion = null;
-      });
+  void _next() {
+    setState(() {
+      _selected = null;
+      _answered = false;
+      _answeredQuestion = null;
+    });
+    // 最後の問題の次（結果表示）に進むときに、全画面広告を出す（頻度は AdGate が制限する）。
+    if (_session?.current == null) {
+      unawaited(ref.read(adGateProvider).maybeShowInterstitial(InterstitialTrigger.sessionEnd));
+    }
+  }
 
   void _retry() => _restart(seed: DateTime.now().millisecondsSinceEpoch);
 
@@ -275,10 +283,17 @@ class _PracticeSessionViewState extends ConsumerState<PracticeSessionView> {
     }
     final q = answeredQ ?? session.current;
     if (q == null) {
-      return ResultSummary(
-        correct: session.correctCount,
-        total: session.questions.length,
-        onRetry: _retry,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ResultSummary(
+            correct: session.correctCount,
+            total: session.questions.length,
+            onRetry: _retry,
+          ),
+          const SizedBox(height: 16),
+          ref.watch(adGateProvider).banner(BannerPlacement.result),
+        ],
       );
     }
 

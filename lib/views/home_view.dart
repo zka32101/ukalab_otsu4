@@ -309,6 +309,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ),
         ]),
+        const SizedBox(height: 8),
+        Center(child: ref.watch(adGateProvider).banner(BannerPlacement.home)),
+        const SizedBox(height: 16),
       ],
     );
   }

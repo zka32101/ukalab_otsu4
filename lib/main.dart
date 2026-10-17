@@ -4,14 +4,16 @@ import 'dart:io' show Platform;
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:ukalab_core/cross_promo.dart';
 import 'package:ukalab_core/ui.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 import 'launch_splash.dart';
+import 'services/no_ads_backend.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'data/achievements_provider.dart';
+import 'data/ad_unit_ids.dart';
 import 'data/answered_questions_store.dart';
 import 'data/combo_store.dart';
 import 'data/daily_answer_stats_store.dart';
@@ -152,6 +154,21 @@ void main() async {
     },
   );
 
+  // 広告。本番ユニットIDはビルド時に --dart-define で渡す（ad_unit_ids.dart）。
+  // Web・iOS は広告を出さない。リリースで未指定なら空のIDで、広告なしのまま起動する。
+  final adIds = adUnitIdsFor(
+    isWeb: kIsWeb,
+    isAndroid: !kIsWeb && Platform.isAndroid,
+    isRelease: kReleaseMode,
+  );
+  final adGate = await AdGate.init(
+    config: AdConfig(unitIds: adIds),
+    // IDが空(Web・iOS、または本番IDが未指定のリリース)なら、広告SDKを使わず、広告なしで起動する。
+    backend: adIds.banner.isEmpty && adIds.interstitial.isEmpty ? NoAdsBackend() : null,
+    adsHidden: () => entitlementService.state.adsHidden,
+    isRelease: kReleaseMode,
+  );
+
   // 相互紹介（ukalab_core）。Firebase 初期化と Remote Config 取得を内部でまとめて行い、
   // 失敗（設定ファイル未配置など）しても例外を投げず起動を止めない。
   unawaited(UkalabCrossPromo.init());
@@ -161,6 +178,7 @@ void main() async {
     overrides: [
       handsFreeStoreProvider.overrideWithValue(SharedPreferencesHandsFreeStore('otsu4')),
       entitlementServiceProvider.overrideWithValue(entitlementService),
+      adGateProvider.overrideWithValue(adGate),
       coinServiceProvider.overrideWithValue(coinService),
       outfitServiceProvider.overrideWithValue(outfitService),
       progressServiceProvider.overrideWithValue(progressService),
