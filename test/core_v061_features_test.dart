@@ -33,6 +33,7 @@ import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
+import 'test_ads.dart';
 
 // 2026-10-14 は水曜。月曜始まりの今週は 10/12〜10/18。
 final _now = DateTime(2026, 10, 14, 12);
@@ -132,6 +133,7 @@ Future<List<Override>> _overrides(
       ...unlock,
       outfitServiceProvider.overrideWithValue(outfit),
       entitlementServiceProvider.overrideWithValue(FakeEntitlementService()),
+      stubAdGateOverride(),
       ...studyNotes,
       ...goal,
       ...reminder,

@@ -220,6 +220,8 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
       _result = result;
       _wrongQuestions = wrong;
     });
+    // 結果を見せたあとに全画面広告（頻度は AdGate が制限する）。
+    unawaited(ref.read(adGateProvider).maybeShowInterstitial(InterstitialTrigger.mockExamResult));
     ref.read(mockHistoryProvider.notifier).add(MockHistoryEntry(
           at: DateTime.now(),
           score: result.total.score,
@@ -287,6 +289,8 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
                   shortfalls: result.subjectShortfalls,
                 ),
               ],
+              const SizedBox(height: 16),
+              ref.watch(adGateProvider).banner(BannerPlacement.result),
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () => _showResultShareCard(context, result),

@@ -28,6 +28,7 @@ import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
+import '../test_ads.dart';
 
 /// 実問題のうち、表示が長くなりやすいもの（最長の選択肢・問題文・解説）。
 List<Question> worstCaseQuestions = const [];
@@ -129,6 +130,7 @@ Future<List<Override>> clipOverrides(
     return <Override>[
       ...extra,
       handsFreeStoreProvider.overrideWithValue(InMemoryHandsFreeStore()),
+      stubAdGateOverride(),
       entitlementServiceProvider.overrideWithValue(FakeEntitlementService(
         availableOffers: const [
           EntitlementOffer(

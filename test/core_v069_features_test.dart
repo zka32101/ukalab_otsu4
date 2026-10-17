@@ -29,6 +29,7 @@ import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
+import 'test_ads.dart';
 
 ExamConfig _exam() => ExamConfig(
       examId: 'hazmat4',
@@ -124,6 +125,7 @@ Future<List<Override>> _overrides(
       ...unlock,
       outfitServiceProvider.overrideWithValue(outfit),
       entitlementServiceProvider.overrideWithValue(FakeEntitlementService()),
+      stubAdGateOverride(),
       ...studyNotes,
       ...goal,
       ...reminder,

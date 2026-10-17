@@ -21,6 +21,7 @@ import 'package:ukalab_core/achievements.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
+import 'test_ads.dart';
 
 // 新タイプの問題はテスト内の最小フィクスチャ（出荷する assets には入れない）。
 
@@ -120,6 +121,7 @@ Future<List<Override>> _overrides(WidgetTester tester) async {
       comboServiceProvider.overrideWithValue(combo),
       dailyAnswerStatsServiceProvider.overrideWithValue(daily),
       achievementsOverride,
+      stubAdGateOverride(),
       ...unlock,
       ...studyNotes,
       ...goal,
