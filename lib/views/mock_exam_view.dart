@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
+import '../data/mock_exam_quota.dart';
+
 import '../data/answered_questions_store.dart';
 import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
@@ -90,6 +92,31 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
 
   /// 選択中の類（乙4・乙1等）の `LevelConfig`。未選択なら従来どおり先頭。
   LevelConfig _currentLevel(ExamConfig exam) => currentLevel(exam, ref.read(selectedLevelIdProvider));
+
+  /// 無料版は月の回数に上限がある。使える回数が残っていれば1回分を使って始める。
+  Future<void> _tryStart() async {
+    final isPremium = (ref.read(entitlementStateProvider).valueOrNull ?? EntitlementState.free).hasPremium;
+    final quota = await mockExamQuota(isPremium: isPremium);
+    if (!await quota.tryConsume()) {
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('今月の模擬試験は使い切りました'),
+          content: const Text(
+            '無料版の模擬試験は、月に1回までです。来月になると、また受けられます。\n'
+            'プレミアムなら、回数の制限なく受けられます（設定から購入できます）。',
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('閉じる')),
+          ],
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    _start();
+  }
 
   void _start() {
     final level = _currentLevel(_exam!);
@@ -271,7 +298,7 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
                 total: result.total.max,
                 passRatio: _currentLevel(exam).passRule.totalPct / 100,
                 passedText: result.passed ? '合格ライン到達' : '科目の足切りに注意',
-                onRetry: _start,
+                onRetry: _tryStart,
               ),
               // 結果の分析(科目ごとの正答率・次にやる分野)。今回の解答だけから作り、何も保存しない。
               if (_picked != null && _picked!.isNotEmpty) ...[
@@ -340,7 +367,7 @@ class _MockExamViewState extends ConsumerState<MockExamView> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              FilledButton(onPressed: enough ? _start : null, child: const Text('開始する')),
+              FilledButton(onPressed: enough ? _tryStart : null, child: const Text('開始する')),
               if (!enough) ...[
                 const SizedBox(height: 8),
                 Text('問題数が足りないため開始できません（${qs.length}/${level.questionCount}問）'),
