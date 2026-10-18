@@ -1,7 +1,7 @@
 name: otsu4
 description: "うかラボ 危険物乙4 - 危険物取扱者乙種（乙1〜乙6対応）学習アプリ"
 publish_to: "none"
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -49,3 +49,7 @@ flutter_launcher_icons:
   adaptive_icon_background: "#C23D16"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
   min_sdk_android: 21
+
+# shared_preferences_android 2.5.0 は Android で起動時に NoSuchMethodError となり、起動画面から進まない(実機で確認)。他アプリと同じ 2.4.x に固定する。
+dependency_overrides:
+  shared_preferences_android: 2.4.23
