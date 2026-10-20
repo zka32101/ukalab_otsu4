@@ -4,6 +4,7 @@ import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:otsu4/data/history_store.dart';
 import 'package:otsu4/views/exam_prep_entry.dart';
 import 'package:otsu4/widgets/premium_benefits_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -187,9 +188,14 @@ void main() {
       ));
       await tester.pump();
       await tester.pump();
+      // 履歴は最初に読んだときに端末から読み込まれる(遅延)ので、先に読んで待つ。
+      final container = ProviderScope.containerOf(
+          tester.element(find.byType(CoreFeatureSettingsTiles)));
+      container.read(historyProvider);
       await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 100)));
+          () => Future<void>.delayed(const Duration(milliseconds: 200)));
       await tester.pump();
+      expect(container.read(historyProvider), hasLength(2));
       await tester.tap(find.byKey(const ValueKey('exportTile')));
       await tester.pumpAndSettle();
       expect(find.byType(HistoryExportView), findsOneWidget);
