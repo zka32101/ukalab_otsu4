@@ -406,6 +406,19 @@ void main() {
       expect(find.text('間違いノート', skipOffstage: false), findsNothing);
     });
 
+    testWidgets('設定: 購入欄の下にプレミアムでできること(PremiumBenefitsCard)が出る', (tester) async {
+      await pumpApp(tester, const SettingsView());
+      expect(find.byType(PurchaseSection), findsOneWidget);
+      expect(find.byType(PremiumBenefitsCard), findsOneWidget);
+      final s = PremiumBenefitsStrings.ja;
+      expect(find.text(s.title), findsOneWidget);
+      expect(find.byKey(const ValueKey('premiumBenefit_examEveMode')), findsOneWidget);
+      expect(find.byKey(const ValueKey('premiumBenefit_historyExport')), findsOneWidget);
+      // このアプリで未実装の機能は載せない
+      expect(find.byKey(const ValueKey('premiumBenefit_customMockExam')), findsNothing);
+      expect(find.byKey(const ValueKey('premiumBenefit_mockExamHistory')), findsNothing);
+    });
+
     testWidgets('設定: 間違いノートのタイルから開ける', (tester) async {
       await pumpApp(tester, const SettingsView());
       // 遅延ビルドの一覧なので、見つかるまで少しずつスクロールする。

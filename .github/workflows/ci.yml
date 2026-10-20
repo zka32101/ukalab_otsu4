@@ -42,7 +42,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Serve and check
         env:
-          E2E_SETTINGS: '購入'
+          E2E_SETTINGS: '購入,プレミアムでできること'
           E2E_EXAM_DATE: ''
           E2E_HOME: 'うかラボ 危険物乙4,今日やること,記録,試験に向けて'
           E2E_LEARN: '学習ツール一覧,道具,間違いノート,用語集,章ごとの解説読み物'

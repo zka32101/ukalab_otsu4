@@ -17,6 +17,7 @@ import '../data/exam_date_store.dart';
 import '../data/peer_stats_prep.dart';
 import '../data/progress_store.dart';
 import '../widgets/peer_stats_settings_tile.dart';
+import '../widgets/premium_benefits_section.dart';
 import '../widgets/question_count_card.dart';
 import '../data/question_repository.dart';
 import '../data/exam_repository.dart';
@@ -68,7 +69,8 @@ class SettingsView extends ConsumerWidget {
           const SizedBox(height: 24),
         ],
         PurchaseSection(titleStyle: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
+        const PremiumBenefitsSection(),
         const _WeakAreaReminderCard(),
         if (exam != null && exam.levels.length > 1) ...[
           Text('学習する類', style: theme.textTheme.titleSmall),
