@@ -86,7 +86,10 @@ class CoreFeaturesCard extends ConsumerWidget {
 
 /// 設定タブの、更新ログ・履歴書き出しの入口。
 class CoreFeatureSettingsTiles extends ConsumerWidget {
-  const CoreFeatureSettingsTiles({super.key});
+  const CoreFeatureSettingsTiles({super.key, this.saver});
+
+  /// 履歴CSVの渡し方(テスト用の差し替え)。null なら core の既定(Web はダウンロード、他は共有シート)。
+  final FileSaver? saver;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,6 +99,7 @@ class CoreFeatureSettingsTiles extends ConsumerWidget {
           builder: (_) => UpdateLogView(entriesFuture: loadUpdateLog()))),
       onOpenExport: (c) => Navigator.of(c).push(MaterialPageRoute<void>(
           builder: (_) => HistoryExportView(
+                saver: saver,
                 records: ref.read(historyProvider),
                 questions:
                     ref.read(allQuestionsProvider).valueOrNull ?? const [],
