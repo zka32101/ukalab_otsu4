@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 import 'feature_flags.dart';
@@ -40,3 +41,18 @@ class QuestionRepository {
 /// [subjectId] が null ならそのまま返し、指定があればその分野だけに絞り込む。
 List<Question> filterBySubject(List<Question> pool, String? subjectId) =>
     subjectId == null ? pool : [for (final q in pool) if (q.subjectId == subjectId) q];
+
+/// 出題に使う問題プール（フラグ適用後。[QuestionRepository.load] の結果）。
+/// 件数表示など、読み取り専用の用途で使う。
+final activeQuestionsProvider =
+    FutureProvider<List<Question>>((ref) => const QuestionRepository().load());
+
+/// 分野（subjectId）ごとの件数。[order] に並び順の subjectId を渡すとその順で先に並べ、
+/// そこに無い subjectId は末尾に出現順で付く。件数 0 の分野は [order] に含まれていても出す。
+List<(String, int)> countBySubject(Iterable<Question> pool, {List<String> order = const []}) {
+  final counts = <String, int>{for (final id in order) id: 0};
+  for (final q in pool) {
+    counts[q.subjectId] = (counts[q.subjectId] ?? 0) + 1;
+  }
+  return [for (final e in counts.entries) (e.key, e.value)];
+}

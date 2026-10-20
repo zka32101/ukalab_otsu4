@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/exercise_coins.dart';
 import '../data/violation.dart';
+import '../widgets/answer_explanation_card.dart';
 
 /// 違反探しモード（画期的な機能A）。4つの行動のうち、
 /// 法令・消火の知識に違反しているものを1つ見つける。
@@ -87,15 +88,9 @@ class _ViolationHuntViewState extends ConsumerState<ViolationHuntView> {
               ],
             ),
             const SizedBox(height: 8),
-            Card(
-              color: theme.colorScheme.errorContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  statements[violationIndex].explanation,
-                  style: theme.textTheme.bodySmall,
-                ),
-              ),
+            AnswerExplanationCard(
+              text: statements[violationIndex].explanation,
+              incorrect: !correct,
             ),
             const SizedBox(height: 16),
             FilledButton(onPressed: _next, child: const Text('次の問題')),
