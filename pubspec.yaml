@@ -1,7 +1,7 @@
 name: otsu4
 description: "うかラボ 危険物乙4 - 危険物取扱者乙種（乙1〜乙6対応）学習アプリ"
 publish_to: "none"
-version: 0.1.2+4
+version: 0.1.3+5
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
