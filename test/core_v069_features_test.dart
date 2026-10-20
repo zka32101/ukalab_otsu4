@@ -350,7 +350,7 @@ void main() {
       await _pumpHome(tester);
       expect(find.text('今日やること'), findsOneWidget);
       expect(find.text('記録'), findsOneWidget);
-      expect(find.text('試験の準備'), findsOneWidget);
+      expect(find.widgetWithText(HomeSectionHeader, '試験に向けて'), findsOneWidget);
       final today = find.ancestor(
           of: find.byType(TodayReviewCard), matching: find.byType(HomeSection));
       final record = find.ancestor(

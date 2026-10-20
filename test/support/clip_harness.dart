@@ -9,6 +9,7 @@ import 'package:otsu4/data/achievements_provider.dart';
 import 'package:otsu4/data/answered_questions_store.dart';
 import 'package:otsu4/data/combo_store.dart';
 import 'package:otsu4/data/daily_answer_stats_store.dart';
+import 'package:otsu4/data/exam_repository.dart';
 import 'package:otsu4/data/exam_date_store.dart';
 import 'package:otsu4/data/glossary_favorite_store.dart';
 import 'package:otsu4/data/learned_terms.dart';
@@ -22,6 +23,7 @@ import 'package:otsu4/data/srs_store.dart';
 import 'package:otsu4/data/subject_stats_history_store.dart';
 import 'package:otsu4/data/subject_stats_store.dart';
 import 'package:otsu4/data/theme_store.dart';
+import 'package:otsu4/widgets/learn_tools_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'package:ukalab_core/daily_goal.dart';
@@ -309,4 +311,19 @@ Future<void> preloadAssets() async {
     }
   }
   await rootBundle.loadString('assets/readings.jsonl');
+}
+
+/// 試験定義(アセット)を読んでから「学ぶ」下部の「道具」だけを出す(全画面オーバーフロー検査用)。
+class LearnToolsHarness extends ConsumerWidget {
+  const LearnToolsHarness({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final exam = ref.watch(examConfigProvider).valueOrNull;
+    return Scaffold(
+      body: exam == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(child: LearnToolsSection(exam: exam)),
+    );
+  }
 }

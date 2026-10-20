@@ -32,6 +32,7 @@ final _screens = <String, Widget Function()>{
   'field_day': () => const FieldDayView(),
   'focus_training': () => const FocusTrainingView(),
   'glossary': () => const GlossaryCardView(),
+  'learn_tools': () => const LearnToolsHarness(),
   'mock_report': () => const MockReportView(),
   'mock_wrong_review': () => const MockWrongReviewView(),
   'nagara_study': () => const NagaraStudyView(),

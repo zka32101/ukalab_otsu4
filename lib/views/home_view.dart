@@ -19,7 +19,6 @@ import '../widgets/oshi_home_cards.dart';
 import '../widgets/today_review_section.dart';
 import 'exam_prep_entry.dart';
 import '../widgets/cert_prop_badge.dart';
-import 'mistake_note_screen.dart';
 import 'glossary_card_view.dart';
 
 /// ホーム。試験の概要と、学ぶ・模擬への導線。
@@ -188,12 +187,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ],
             ),
           if (termOfDay != null) _TermOfDayCard(term: termOfDay),
-          HomeMenuTile(
-            icon: Icons.edit_note_outlined,
-            title: '間違いノート',
-            subtitle: '間違えた問題を見返して、解き直せます。',
-            onTap: () => openMistakeNote(context, ref, exam: exam),
-          ),
         ]),
         // ② 記録
         section('record', '記録', Icons.insights_outlined, [
@@ -234,8 +227,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ),
             ),
         ]),
-        // ③ 試験の準備(CoreFeaturesCard 自身の見出しが「試験に向けて」のため重複を避けた)
-        section('exam', '試験の準備', Icons.flag_outlined, [
+        // ③ 試験に向けて(間違いノート等の調べる系の入口は「学ぶ」の「道具」)
+        section('exam', '試験に向けて', Icons.flag_outlined, [
           if (examDate != null)
             Card(
               margin: EdgeInsets.zero,

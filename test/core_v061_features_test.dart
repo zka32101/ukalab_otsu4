@@ -394,7 +394,7 @@ void main() {
       }
     }
 
-    testWidgets('ホーム: 推しの一言・週間ふりかえり・間違いノートのカードが出て、ノートを開ける', (tester) async {
+    testWidgets('ホーム: 推しの一言・週間ふりかえりが出て、間違いノートの入口は「学ぶ」へ移った', (tester) async {
       await pumpApp(tester, const HomeView());
       expect(find.byType(OshiMessageBubble), findsOneWidget);
       // ホームの分類分けで「記録」が下に移ったため、スクロールして探す。
@@ -403,11 +403,7 @@ void main() {
       expect(find.byType(WeeklyRecapCard), findsOneWidget);
       // 推しの一言と二重にならないよう、ふりかえりの message スロットは使わない
       expect(tester.widget<WeeklyRecapCard>(find.byType(WeeklyRecapCard)).message, isNull);
-      await tester.scrollUntilVisible(find.text('間違いノート'), -300,
-          scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.text('間違いノート'));
-      await _waitForNoteScreen(tester);
-      expect(find.byType(MistakeNoteScreen), findsOneWidget);
+      expect(find.text('間違いノート', skipOffstage: false), findsNothing);
     });
 
     testWidgets('設定: 間違いノートのタイルから開ける', (tester) async {
@@ -470,7 +466,7 @@ void main() {
       expect(texts.contains(w), isFalse, reason: w);
     }
   });
-  group('ホーム: 分類分け(今日やること/記録/試験の準備)', () {
+  group('ホーム: 分類分け(今日やること/記録/試験に向けて)', () {
     Future<List<Override>> pumpHome(
       WidgetTester tester, {
       DateTime? examDate,
@@ -516,7 +512,9 @@ void main() {
       await pumpHome(tester);
       expect(find.text('今日やること'), findsOneWidget);
       expect(find.text('記録'), findsOneWidget);
-      expect(find.text('試験の準備'), findsOneWidget);
+      // 「試験に向けて」は core のカード自身の見出しにも出るため、区切りの見出しで数える。
+      expect(find.widgetWithText(HomeSectionHeader, '試験に向けて'), findsOneWidget);
+      expect(find.text('試験の準備'), findsNothing);
       for (final t in ['道具', '体験ラボ', '設定・その他']) {
         expect(find.text(t), findsNothing);
       }
@@ -527,16 +525,13 @@ void main() {
       expect(find.text('出題科目'), findsOneWidget);
     });
 
-    testWidgets('既存の入口: 推し・一言・カウントダウンが残り、間違いノートは1か所で開ける', (tester) async {
+    testWidgets('既存の入口: 推し・一言・カウントダウンが残り、間違いノートの入口はホームに無い', (tester) async {
       await pumpHome(tester, examDate: DateTime.now().add(const Duration(days: 30)));
       expect(find.byType(OshiMessageBubble), findsOneWidget);
       expect(find.byType(ExamCountdownSection), findsOneWidget);
       // 試験日カード(日数表示)は examDate があるときだけ出る。
       expect(find.byIcon(Icons.event_outlined), findsWidgets);
-      expect(find.text('間違いノート'), findsOneWidget);
-      await tester.tap(find.byType(HomeMenuTile));
-      await _waitForNoteScreen(tester);
-      expect(find.byType(MistakeNoteScreen), findsOneWidget);
+      expect(find.text('間違いノート'), findsNothing);
     });
 
     testWidgets('試験日が未設定なら試験日カードは出ない(条件付き表示の維持)', (tester) async {
@@ -547,10 +542,10 @@ void main() {
     testWidgets('折りたたみの開閉と保存', (tester) async {
       final overrides = await pumpHome(tester);
       expect(find.byType(CoreFeaturesCard), findsOneWidget);
-      await tester.tap(find.text('試験の準備'));
+      await tester.tap(find.widgetWithText(HomeSectionHeader, '試験に向けて'));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(CoreFeaturesCard), findsNothing);
-      expect(find.text('試験の準備'), findsOneWidget);
+      expect(find.widgetWithText(HomeSectionHeader, '試験に向けて'), findsOneWidget);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getBool('ukalab_otsu4_home_section_exam'), isFalse);
       expect(prefs.getBool('ukalab_otsu4_home_section_today'), isNull);
@@ -558,7 +553,7 @@ void main() {
       await pumpHome(tester, reuse: overrides);
       expect(find.byType(CoreFeaturesCard), findsNothing);
       // 開き直すと戻る。
-      await tester.tap(find.text('試験の準備'));
+      await tester.tap(find.widgetWithText(HomeSectionHeader, '試験に向けて'));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(CoreFeaturesCard), findsOneWidget);
       expect(prefs.getBool('ukalab_otsu4_home_section_exam'), isTrue);
