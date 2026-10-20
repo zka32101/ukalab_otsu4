@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:otsu4/data/cross_promo_setup.dart';
@@ -36,5 +38,15 @@ void main() {
 
   test('UkalabCrossPromo.init() は Firebase 無しでも例外を投げない', () async {
     await UkalabCrossPromo.init();
+  });
+
+  test('kCrossPromoAppId は android の applicationId と完全一致する', () {
+    final gradle = File('android/app/build.gradle.kts').existsSync()
+        ? File('android/app/build.gradle.kts')
+        : File('android/app/build.gradle');
+    final m = RegExp(r'applicationId\s*=?\s*"([^"]+)"').firstMatch(gradle.readAsStringSync());
+    expect(m, isNotNull);
+    expect(kCrossPromoAppId, m!.group(1));
+    expect(kCrossPromoAppId, 'com.yourwish.ukalab_otsu');
   });
 }

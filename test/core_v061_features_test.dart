@@ -29,6 +29,7 @@ import 'package:otsu4/views/practice_session_view.dart';
 import 'package:otsu4/widgets/oshi_home_cards.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/achievements.dart';
+import 'package:ukalab_core/cross_promo.dart';
 import 'package:ukalab_core/daily_goal.dart';
 import 'package:ukalab_core/reminder.dart';
 import 'package:ukalab_core/ui.dart';
@@ -417,6 +418,17 @@ void main() {
       // このアプリで未実装の機能は載せない
       expect(find.byKey(const ValueKey('premiumBenefit_customMockExam')), findsNothing);
       expect(find.byKey(const ValueKey('premiumBenefit_mockExamHistory')), findsNothing);
+    });
+
+    testWidgets('設定画面の相互紹介は、掲載リストが空（Firebase無し）なら何も出ず例外にもならない', (tester) async {
+      // 設定は項目が多く、ListView は画面外を描画しないため縦長のビューで描画する。
+      tester.view.physicalSize = const Size(800, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await pumpApp(tester, const SettingsView());
+      expect(tester.takeException(), isNull);
+      expect(find.byType(UkalabCrossPromoSection), findsOneWidget);
+      expect(find.text('他のアプリもチェック！'), findsNothing);
     });
 
     testWidgets('設定: 間違いノートのタイルから開ける', (tester) async {
