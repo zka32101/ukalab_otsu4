@@ -18,8 +18,11 @@ import 'support/clip_harness.dart';
 Future<void> _tapAndBack(WidgetTester tester, String text, Type screen) async {
   final finder = find.text(text);
   await tester.scrollUntilVisible(finder, 200, scrollable: find.byType(Scrollable).first);
+  await tester.ensureVisible(finder);
+  await tester.pump();
   await tester.tap(finder);
-  for (var i = 0; i < 30 && find.byType(screen).evaluate().isEmpty; i++) {
+  // 間違いノートは試験定義(アセット)の読み込み後に開くので、十分に待つ。
+  for (var i = 0; i < 100 && find.byType(screen).evaluate().isEmpty; i++) {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
     await tester.pump(const Duration(milliseconds: 100));
   }
