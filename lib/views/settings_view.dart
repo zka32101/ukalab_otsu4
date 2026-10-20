@@ -17,6 +17,7 @@ import '../data/exam_date_store.dart';
 import '../data/peer_stats_prep.dart';
 import '../data/progress_store.dart';
 import '../widgets/peer_stats_settings_tile.dart';
+import '../widgets/question_count_card.dart';
 import '../data/question_repository.dart';
 import '../data/exam_repository.dart';
 import '../data/selected_level_store.dart';
@@ -92,6 +93,8 @@ class SettingsView extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
         ],
+        const QuestionCountCard(),
+        const SizedBox(height: 24),
         Text('テーマ', style: theme.textTheme.titleSmall),
         const Padding(
           padding: EdgeInsets.fromLTRB(0, 8, 0, 12),
