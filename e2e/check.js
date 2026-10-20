@@ -3,6 +3,7 @@
 // 期待値は環境変数で渡す（アプリごとに違うため）:
 //   E2E_SETTINGS   設定タブに出るはずの文言（カンマ区切り）
 //   E2E_EXAM_DATE  1 なら、受験日の入力→再読み込みで残る→解除 を確認する
+//   E2E_HOME / E2E_LEARN / E2E_MOCK  ホーム／学ぶ／模擬タブに出るはずの文言（カンマ区切り。下にあるものは画面をスクロールして探す）
 //   E2E_READING    「入口の文言|読み物の題名(一部)|最初の節の見出し」。あれば、解説読み物の一覧と詳細を確認する
 // Flutter Web は文字をキャンバスに描くので、アクセシビリティ（semantics）を有効にして文字とボタンを拾う。
 const { chromium } = require('playwright');
@@ -40,6 +41,17 @@ function check(name, ok) {
     }
     return false;
   };
+  // 一覧は画面に出た分しか semantics に出ないため、見つかるまで少しずつスクロールして探す。
+  const waitTextScroll = async (s) => {
+    if (await waitText(s, 3000)) return true;
+    await page.mouse.move(210, 500);
+    for (let i = 0; i < 25; i++) {
+      await page.mouse.wheel(0, 500);
+      await page.waitForTimeout(250);
+      if ((await text()).includes(s)) return true;
+    }
+    return false;
+  };
   const click = async (name) => {
     const byRole = page.getByRole('tab', { name, exact: false });
     const loc = (await byRole.count()) > 0 ? byRole : page.getByRole('button', { name, exact: false });
@@ -66,6 +78,17 @@ function check(name, ok) {
     await page.screenshot({ path: `${shots}/tab-${t}.png` });
   }
   check('ページエラーなし（各タブ）', errors.length === 0);
+
+  // アプリ固有の文言（ホーム／学ぶ／模擬）。
+  const expectOn = async (tab, env) => {
+    const items = (process.env[env] || '').split(',').filter(Boolean);
+    if (!items.length) return;
+    await click(tab);
+    for (const s of items) check(`${tab}に「${s}」`, await waitTextScroll(s));
+  };
+  await expectOn('ホーム', 'E2E_HOME');
+  await expectOn('学ぶ', 'E2E_LEARN');
+  await expectOn('模擬', 'E2E_MOCK');
 
   // 設定タブ
   await click('設定');
@@ -98,7 +121,7 @@ function check(name, ok) {
     const [entry, title, heading] = reading;
     await boot();
     await click('学ぶ');
-    check(`学ぶタブに「${entry}」`, await waitText(entry));
+    check(`学ぶタブに「${entry}」`, await waitTextScroll(entry));
     await click(entry);
     check(`読み物の一覧に「${title}」`, await waitText(title));
     await page.screenshot({ path: `${shots}/reading-list.png` });

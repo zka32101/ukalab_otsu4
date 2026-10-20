@@ -11,16 +11,13 @@ import '../data/question_repository.dart';
 import '../data/selected_level_store.dart';
 import '../data/srs_store.dart';
 import '../data/subject_stats_store.dart';
-import 'bookmark_list_view.dart';
+import '../widgets/learn_tools_section.dart';
 import 'extinguisher_match_view.dart';
 import 'field_day_view.dart';
 import 'focus_training_view.dart';
-import 'glossary_card_view.dart';
-import 'memo_list_view.dart';
 import 'mock_wrong_review_view.dart';
 import 'practice_session_view.dart';
 import 'question_search_view.dart';
-import 'reading_list_view.dart';
 import 'storage_puzzle_view.dart';
 import 'study_tools_view.dart';
 import 'temperature_lab_view.dart';
@@ -28,7 +25,6 @@ import 'violation_hunt_view.dart';
 import 'weak_review_view.dart';
 import 'package:ukalab_core/answer_feedback.dart' show WeakSummaryCard, canShowWeakSummary;
 import '../data/history_store.dart';
-import 'package:ukalab_core/ui.dart' show bookmarkProvider, questionMemoProvider;
 
 /// 一問一答の演習（問題データが無ければ空状態）と、体験型の演習（画期的な
 /// 機能A〜E）への入り口。体験型の演習は一問一答の問題データの有無に
@@ -86,7 +82,6 @@ class _StudyViewState extends ConsumerState<StudyView> {
         : [for (final q in allQs) if (relevantSubjectIds.contains(q.subjectId)) q];
     final dueQids = ref.watch(dueWeakQidsProvider).toSet();
     final dueCount = qs.where((q) => dueQids.contains(q.qid)).length;
-    final bookmarkCount = ref.watch(bookmarkProvider).length;
     final dailyGoal = ref.watch(dailyGoalProvider);
     final weakIds = weakSubjectIds(ref.watch(subjectStatsProvider)).toSet();
     final weakQuestionCount = qs.where((q) => weakIds.contains(q.subjectId)).length;
@@ -95,7 +90,6 @@ class _StudyViewState extends ConsumerState<StudyView> {
     final goalStreak = effectiveAchievedStreak(dailyGoal, DateTime.now());
     final answeredQids = ref.watch(answeredQuestionsProvider);
     final coverage = subjectCoverage(qs, answeredQids);
-    final memoCount = ref.watch(questionMemoProvider).length;
     final subjects = _availableSubjects(exam, qs);
     final filter = _subjectFilter;
     final filteredQs = filterBySubject(qs, filter);
@@ -111,18 +105,6 @@ class _StudyViewState extends ConsumerState<StudyView> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const StudyToolsView()),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.auto_stories_outlined),
-            title: const Text('章ごとの解説読み物'),
-            subtitle: const Text('法令・物理化学・性質消火を、教科書のように体系的に読めます'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ReadingListView()),
             ),
           ),
         ),
@@ -228,46 +210,6 @@ class _StudyViewState extends ConsumerState<StudyView> {
           ),
           const SizedBox(height: 12),
         ],
-        if (bookmarkCount > 0) ...[
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.bookmark_outlined),
-              title: Text('ブックマーク（$bookmarkCount問）'),
-              subtitle: const Text('気になる問題だけをまとめて見返せます'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const BookmarkListView()),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (memoCount > 0) ...[
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.sticky_note_2_outlined),
-              title: Text('自分用メモの一覧（$memoCount件）'),
-              subtitle: const Text('書き残したメモをまとめて見返せます'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MemoListView()),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.menu_book_outlined),
-            title: const Text('用語集'),
-            subtitle: const Text('引火点・指定数量など、頻出用語を暗記カードで確認できます'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const GlossaryCardView()),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
         Card(
           child: ListTile(
             leading: const Icon(Icons.search_outlined),
@@ -407,6 +349,8 @@ class _StudyViewState extends ConsumerState<StudyView> {
             MaterialPageRoute(builder: (_) => const FieldDayView()),
           ),
         ),
+        const SizedBox(height: 24),
+        LearnToolsSection(exam: exam),
       ],
     );
   }
