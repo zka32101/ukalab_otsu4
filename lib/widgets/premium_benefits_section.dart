@@ -5,13 +5,31 @@ import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 /// このアプリで実際にプレミアム限定になっている機能(core の [PremiumFeature] のうち)。
-/// 弱点集中ドリル・模擬試験の成長グラフ・カスタム模擬試験は、このアプリでは未実装なので載せない。
+/// 苦手サマリー(core では weakDrill)は学習画面にプレミアムで表示されるので載せる。
+/// ただし core の既定文言は「弱点集中ドリル」でドリル画面を約束してしまうため、
+/// このアプリ専用の文言([kOtsu4PremiumBenefitsStrings])に差し替える。
+/// 模擬試験の成長グラフ・カスタム模擬試験は、このアプリでは未実装なので載せない。
 const List<PremiumFeature> kOtsu4PremiumFeatures = [
+  PremiumFeature.weakDrill,
   PremiumFeature.examEveMode,
   PremiumFeature.tenMinutePlan,
   PremiumFeature.historyExport,
   PremiumFeature.readingReadAloud,
 ];
+
+/// 乙4専用の特典文言。core の日本語文言をもとに、苦手サマリー(weakDrill)だけ
+/// ドリル画面を約束しない表現へ差し替える。
+final PremiumBenefitsStrings kOtsu4PremiumBenefitsStrings = PremiumBenefitsStrings(
+  title: PremiumBenefitsStrings.ja.title,
+  freeNote: PremiumBenefitsStrings.ja.freeNote,
+  benefits: {
+    ...PremiumBenefitsStrings.ja.benefits,
+    PremiumFeature.weakDrill: const PremiumBenefit(
+      '苦手分野のサマリー',
+      '学習画面で、間違えやすい分野のまとめを見られます。',
+    ),
+  },
+);
 
 /// 設定の購入欄の下に出す、プレミアムでできることの一覧(core の [PremiumBenefitsCard])。
 /// すでにプレミアムの人には出さない。無料版の回数制限(模擬試験・今日の復習)が
@@ -32,9 +50,10 @@ class PremiumBenefitsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const PremiumBenefitsCard(
-            key: ValueKey('premiumBenefitsCard'),
+          PremiumBenefitsCard(
+            key: const ValueKey('premiumBenefitsCard'),
             features: kOtsu4PremiumFeatures,
+            strings: kOtsu4PremiumBenefitsStrings,
             showFreeNote: false,
           ),
           const Padding(
