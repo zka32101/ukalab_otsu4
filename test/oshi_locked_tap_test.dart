@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:otsu4/data/character_wiring.dart';
+import 'package:otsu4/data/progress_store.dart';
 import 'package:otsu4/widgets/oshi_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/ui.dart';
@@ -12,8 +13,11 @@ Future<void> _pump(WidgetTester tester) async {
   tester.view.physicalSize = const Size(800, 3000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
+  final progressService = ProgressService();
+  await tester.runAsync(progressService.load);
   await tester.pumpWidget(ProviderScope(
     overrides: [
+      progressServiceProvider.overrideWithValue(progressService),
       entitlementServiceProvider.overrideWithValue(FakeEntitlementService()),
       ...qualificationCharacterOverrides,
     ],
