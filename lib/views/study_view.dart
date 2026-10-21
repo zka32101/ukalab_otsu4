@@ -13,6 +13,7 @@ import '../data/srs_store.dart';
 import '../data/subject_stats_store.dart';
 import '../widgets/learn_tools_section.dart';
 import 'extinguisher_match_view.dart';
+import 'field_day_scenario_view.dart';
 import 'field_day_view.dart';
 import 'focus_training_view.dart';
 import 'mock_wrong_review_view.dart';
@@ -347,6 +348,15 @@ class _StudyViewState extends ConsumerState<StudyView> {
           description: '1日の勤務を模した4つの場面で、温度・指定数量・消火剤の判断をしよう',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const FieldDayView()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ExperienceCard(
+          icon: Icons.storefront_outlined,
+          title: '現場の1日 職場別（プレミアム）',
+          description: 'ガソリンスタンド・化学工場の貯蔵所・危険物倉庫の1日で、危険物の扱いを判断しよう',
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const FieldDayScenarioListView()),
           ),
         ),
         const SizedBox(height: 24),
