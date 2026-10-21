@@ -12,7 +12,7 @@ MascotStage _stageFor(ProgressSnapshot p) =>
 /// `CharacterSelectScreen`（小さな顔アイコンのみ）に固定されており、乙4側
 /// からは差し替えられない。学習ツール一覧のこの画面では、いま装備中の衣装を
 /// 着た状態で5人のキャラクターを並べて比較でき、タップでそのまま選べる
-/// （選択状態は共通の `selectedCharacterPackProvider` を使うため、ホームの
+/// （選択状態は共通の選択状態（`selectedCharacterPackProvider`）に保存するため、ホームの
 /// 推しカードにも反映される）。
 class CharacterPreviewView extends ConsumerWidget {
   const CharacterPreviewView({super.key});
@@ -20,7 +20,7 @@ class CharacterPreviewView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final selected = ref.watch(selectedCharacterPackProvider);
+    final selected = ref.watch(effectiveCharacterPackProvider);
     final progress = ref.watch(progressProvider);
     final stage = _stageFor(progress);
     final outfit = ref.watch(equippedOutfitProvider);
