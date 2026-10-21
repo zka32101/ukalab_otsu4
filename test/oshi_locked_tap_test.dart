@@ -8,7 +8,21 @@ import 'package:otsu4/widgets/oshi_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/ui.dart';
 
+class _Obs extends NavigatorObserver {
+  final events = <String>[];
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) => events.add('push ${route.runtimeType}');
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) => events.add('pop ${route.runtimeType}');
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) =>
+      events.add('replace ${oldRoute.runtimeType} -> ${newRoute.runtimeType}');
+}
+
+final _obs = _Obs();
+
 Future<void> _pump(WidgetTester tester) async {
+  _obs.events.clear();
   SharedPreferences.setMockInitialValues({});
   tester.view.physicalSize = const Size(800, 3000);
   tester.view.devicePixelRatio = 1.0;
@@ -22,6 +36,7 @@ Future<void> _pump(WidgetTester tester) async {
       ...qualificationCharacterOverrides,
     ],
     child: MaterialApp(
+      navigatorObservers: [_obs],
       home: Scaffold(
         body: ListView(children: [
           OshiCard(purchaseBuilder: (_) => const Scaffold(body: Text('購入欄の代わり'))),
@@ -56,9 +71,12 @@ void main() {
     await tester.tap(sala);
     await tester.pump(const Duration(milliseconds: 500));
 
+    expect(find.text('プレミアムを見る'), findsOneWidget);
     await tester.tap(find.text('プレミアムを見る'));
-    await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('購入欄の代わり'), findsOneWidget);
+    for (var i = 0; i < 15; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('購入欄の代わり'), findsOneWidget, reason: 'navigator events: ${_obs.events}');
     expect(find.byType(CharacterSelectScreen), findsNothing);
   });
 }
