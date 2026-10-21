@@ -11,6 +11,7 @@ import '../data/mock_exam_quota.dart';
 import '../data/answered_questions_store.dart';
 import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
+import 'package:ukalab_core/learning.dart';
 import '../data/exam_repository.dart';
 import '../data/feature_flags.dart';
 import '../data/mock_history_store.dart';
