@@ -211,3 +211,12 @@
 - `ukalab_共通基盤_各資格アプリ向けガイド_v0_2.md`
 - `ukalab_危険物乙4_企画設計書_v0_1.md`・`ukalab_危険物乙4_競合調査_v1_0.md`
 - `ukalab_共通デザイン仕様_v0_4.md`・`ukalab_マスコット仕様_v0_2.md`・`ukalab_推し_資格連動要素_v0_1.md`・`ukalab_学習コイン仕様_v0_1.md`
+
+## Firebase 設定の注入（cross_promo 用）
+
+`android/app/google-services.json` はリポジトリに置かず、GitHub Secrets から CI ビルド時に生成します（`.gitignore` 済み）。
+
+- Secret 名: `GOOGLE_SERVICES_JSON_BASE64`
+- 登録手順: Firebase コンソールから取得した `google-services.json` を base64 化（例: `base64 -w0 google-services.json`）し、リポジトリの Settings > Secrets and variables > Actions に登録する。
+- 未設定なら生成ステップはスキップされ、ファイルが無い間は google-services プラグインも適用されません（通常ビルド・テストに影響なし）。
+- ローカルで試す場合は同ファイルを `android/app/` に置くだけで有効になります。
