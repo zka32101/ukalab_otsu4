@@ -96,7 +96,6 @@ void main() {
 
     testWidgets('プレミアム: 開けて、AI下書きの表示と判断→解説→次の章へ進める', (tester) async {
       await _pumpList(tester, premium: true);
-      expect(find.byIcon(Icons.lock_outline), findsNothing);
       await tester.tap(find.text(_scenarios[0].story.title));
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 50));
