@@ -13,6 +13,7 @@ import 'launch_splash.dart';
 import 'services/no_ads_backend.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'data/achievements_provider.dart';
+import 'data/character_wiring.dart';
 import 'data/ad_unit_ids.dart';
 import 'data/answered_questions_store.dart';
 import 'data/combo_store.dart';
@@ -201,6 +202,7 @@ void main() async {
       dailyAnswerStatsServiceProvider.overrideWithValue(dailyAnswerStatsService),
       ...achievementUnlockOverridesList,
       achievementsOverride,
+      ...qualificationCharacterOverrides,
     ],
   );
   await container.read(handsFreeProvider.notifier).load();
