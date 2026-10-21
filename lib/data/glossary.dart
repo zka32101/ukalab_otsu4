@@ -12,6 +12,7 @@ class GlossaryTerm {
     required this.definition,
     required this.subjectId,
     this.note,
+    this.aiDraft = false,
   });
 
   final String term;
@@ -23,6 +24,10 @@ class GlossaryTerm {
 
   /// 補足（他の用語との対比・覚え方のヒントなど）。
   final String? note;
+
+  /// AIが下書きした用語で、専門家（危険物取扱者・指導経験者）の確認前であることを
+  /// 示す。確認が済んだら true を外す（問題データの `ai-draft` タグと同じ運用）。
+  final bool aiDraft;
 }
 
 const glossaryTerms = <GlossaryTerm>[
@@ -107,6 +112,217 @@ const glossaryTerms = <GlossaryTerm>[
         '（比重1未満）、電気の不良導体で静電気を帯びやすい。',
     subjectId: 'property_extinguish',
     note: '蒸気が低所に溜まる性質は、換気・排気設備の必要性につながる。',
+  ),
+  // ---- 以下は AI 下書き（aiDraft: true）。専門家の確認前。確認後に aiDraft を外す ----
+  GlossaryTerm(
+    term: '燃焼範囲',
+    definition: '空気中の可燃性蒸気の濃度が、燃焼できる下限から上限までの範囲。',
+    subjectId: 'physics_chem',
+    note: '範囲が広いほど、また下限が低いほど、危険性が高いと考える。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '蒸気比重',
+    definition: '蒸気の重さを、同じ体積の空気の重さと比べた値。1より大きいと蒸気は空気より重い。',
+    subjectId: 'physics_chem',
+    note: '第四類の蒸気は低所に滞留しやすい。換気や排気の考え方につながる。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '沸点',
+    definition: '液体が沸騰して気体になる温度。',
+    subjectId: 'physics_chem',
+    note: '沸点が低い物質ほど蒸発しやすい傾向がある。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '可燃性蒸気',
+    definition: '液体の表面から発生する、燃える性質をもった蒸気。',
+    subjectId: 'physics_chem',
+    note: '第四類では、液体そのものではなく蒸気が燃える。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '静電気',
+    definition: '物質どうしの摩擦や流動で生じる電気。放電の火花が点火源になることがある。',
+    subjectId: 'physics_chem',
+    note: '電気を通しにくい液体は、流れたりかき混ぜたりすると帯電しやすい。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '自然発火',
+    definition: '外部の火源がなくても、物質が酸化して熱がたまり、自ら燃え出す現象。',
+    subjectId: 'physics_chem',
+    note: '油のしみた布などを積み重ねて放置する場面を例に考える。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '蒸発燃焼',
+    definition: '液体の表面から出た蒸気が空気と混ざって燃える形の燃焼。',
+    subjectId: 'physics_chem',
+    note: '第四類の液体の燃え方の基本形。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '気化熱',
+    definition: '液体が蒸発するときに、周囲から奪う熱。',
+    subjectId: 'physics_chem',
+    note: '蒸発が盛んなほど周囲の温度は下がりやすい。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '燃焼の3要素',
+    definition: '燃焼に必要な3つの条件。可燃物・酸素供給源・点火源。',
+    subjectId: 'physics_chem',
+    note: 'どれか1つを欠けば燃焼は続かない。消火の3要素と対にして整理する。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '第一石油類',
+    definition: '第四類の品名の1つ。引火点が低い部類の石油類で、アセトンやガソリンが代表例。',
+    subjectId: 'property_extinguish',
+    note: '品名は引火点などの性状で区分される。区分の境目は教材で確認すること。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '第二石油類',
+    definition: '第四類の品名の1つ。第一石油類より引火点が高い部類で、灯油や軽油が代表例。',
+    subjectId: 'property_extinguish',
+    note: '水溶性かどうかで消火剤の選び方が変わる点も合わせて整理する。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '第三石油類',
+    definition: '第四類の品名の1つ。第二石油類より引火点が高い部類で、重油などが代表例。',
+    subjectId: 'property_extinguish',
+    note: '常温では引火しにくくても、加熱すると危険性が高まる。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '第四石油類',
+    definition: '第四類の品名の1つ。石油類の中で引火点が高い部類で、潤滑油などが代表例。',
+    subjectId: 'property_extinguish',
+    note: '引火点が高くても、霧状になったり加熱されたりすると燃えやすくなる。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: 'アルコール類',
+    definition: '第四類の品名の1つ。炭素数の少ない飽和1価アルコールが対象で、メタノールやエタノールが代表例。',
+    subjectId: 'property_extinguish',
+    note: '水によく溶けるため、泡消火剤は耐アルコール泡を選ぶ。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '動植物油類',
+    definition: '第四類の品名の1つ。動物の脂肉や植物の種子などから得た油。',
+    subjectId: 'property_extinguish',
+    note: '乾きやすい油がしみた布は、自然発火の例として扱われる。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '泡消火剤',
+    definition: '泡で燃焼面を覆い、空気を遮って窒息させる消火剤。冷却の効果もある。',
+    subjectId: 'property_extinguish',
+    note: '水に溶ける液体の火災には、通常の泡は不向き。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '耐アルコール泡',
+    definition: '水に溶ける液体の火災でも泡が壊れにくいように作られた泡消火剤。',
+    subjectId: 'property_extinguish',
+    note: 'アルコール類など水溶性の危険物に使う。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '粉末消火剤',
+    definition: '微細な粉を放射して燃焼を抑える消火剤。窒息の効果も働く。',
+    subjectId: 'property_extinguish',
+    note: '第四類の火災に使える消火剤の1つ。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '二酸化炭素消火剤',
+    definition: '二酸化炭素で酸素濃度を下げて窒息させる消火剤。',
+    subjectId: 'property_extinguish',
+    note: '密閉された場所で使うと、人が酸欠になるおそれがある。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '危険物',
+    definition: '消防法の別表で品名や性質が示された、火災の危険が大きい物品。',
+    subjectId: 'law',
+    note: '消防法でいう危険物は、日常語の「危ない物」より範囲が決まっている。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '製造所等',
+    definition: '製造所・貯蔵所・取扱所をまとめた呼び方。',
+    subjectId: 'law',
+    note: '危険物を扱う施設の総称として法令に出てくる。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '貯蔵所',
+    definition: '危険物を貯蔵する施設。貯蔵の形態により、屋内貯蔵所や屋外タンク貯蔵所などに分かれる。',
+    subjectId: 'law',
+    note: '種類ごとの基準は教材で確認すること。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '取扱所',
+    definition: '危険物を取り扱う施設で、貯蔵や製造を除くもの。給油取扱所や移送取扱所などがある。',
+    subjectId: 'law',
+    note: '施設の区分は法令の分類にそって覚える。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '危険物取扱者',
+    definition: '危険物の取扱いに必要な免状を持つ人。免状の種類で、取り扱える範囲が異なる。',
+    subjectId: 'law',
+    note: '乙種は、免状に指定された類の危険物を取り扱える。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '危険物保安監督者',
+    definition: '一定の製造所等で、所有者等が選任し、保安の監督を行う人。',
+    subjectId: 'law',
+    note: '選任の対象施設や資格の条件は、法令で定められている。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '予防規程',
+    definition: '製造所等の所有者等が、火災を防ぐために自主的に定める保安のための規程。',
+    subjectId: 'law',
+    note: '対象となる施設は法令で定められ、行政の認可を受ける。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '仮貯蔵・仮取扱い',
+    definition: '承認を受けて、一時的に、指定数量以上の危険物を貯蔵または取り扱うこと。',
+    subjectId: 'law',
+    note: '期間や承認の相手先は法令で定められている。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '完成検査',
+    definition: '製造所等の設置や変更の工事が終わったあと、使用を始める前に受ける検査。',
+    subjectId: 'law',
+    note: '基準に適合していることが確認されて、使用を始められる。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '標識・掲示板',
+    definition: '製造所等に設ける、危険物の施設であることや注意事項を示す表示。',
+    subjectId: 'law',
+    note: '第四類の掲示板には、火気厳禁の注意が示される。',
+    aiDraft: true,
+  ),
+  GlossaryTerm(
+    term: '運搬容器の表示',
+    definition: '危険物を運ぶ容器の外部に、品名・数量・注意事項などを表示すること。',
+    subjectId: 'law',
+    note: '第四類の注意事項は火気厳禁。表示項目は教材で確認すること。',
+    aiDraft: true,
   ),
 ];
 
