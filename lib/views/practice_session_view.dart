@@ -16,6 +16,7 @@ import '../data/srs_store.dart';
 import 'choice_labels.dart';
 import 'glossary_card_view.dart';
 import 'package:ukalab_core/answer_feedback.dart' show AnswerFeedbackPanel, WrongCause;
+import 'package:ukalab_core/learning.dart';
 import 'package:ukalab_core/ui.dart' show
         BookmarkToggleButton,
         ClozeQuestionView,
