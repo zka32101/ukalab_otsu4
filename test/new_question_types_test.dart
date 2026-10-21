@@ -18,9 +18,9 @@ import 'package:otsu4/views/practice_session_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'package:ukalab_core/daily_goal.dart';
-import 'package:ukalab_core/learning.dart' show ResultSummary;
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
+import 'package:ukalab_core/learning.dart';
 import 'test_ads.dart';
 
 // 新タイプの問題はテスト内の最小フィクスチャ（出荷する assets には入れない）。

@@ -4,7 +4,6 @@ import 'package:app_common_kit/app_common_kit.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ukalab_core/learning.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 import '../data/mock_exam_quota.dart';
@@ -12,6 +11,7 @@ import '../data/mock_exam_quota.dart';
 import '../data/answered_questions_store.dart';
 import '../data/daily_answer_stats_store.dart';
 import 'package:ukalab_core/daily_goal.dart';
+import 'package:ukalab_core/learning.dart';
 import '../data/exam_repository.dart';
 import '../data/feature_flags.dart';
 import '../data/mock_history_store.dart';
