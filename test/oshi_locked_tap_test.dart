@@ -41,9 +41,13 @@ void main() {
   testWidgets('ロック中のサラのプレビューから、選択画面を置き換えて購入欄へ誘導される', (tester) async {
     await _pump(tester);
     await tester.tap(find.byIcon(Icons.more_vert));
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(find.text('推しを選ぶ'));
-    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    final item = find.widgetWithText(PopupMenuItem<Object>, '推しを選ぶ');
+    expect(item, findsOneWidget);
+    await tester.tap(item, warnIfMissed: false);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(CharacterSelectScreen), findsOneWidget);
 
     final sala = find.text('サラ');
