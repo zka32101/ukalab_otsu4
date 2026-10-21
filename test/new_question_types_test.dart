@@ -1,4 +1,3 @@
-import 'package:app_common_kit/app_common_kit.dart' show ResultSummary;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +18,7 @@ import 'package:otsu4/views/practice_session_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_core/achievements.dart';
 import 'package:ukalab_core/daily_goal.dart';
+import 'package:ukalab_core/learning.dart' show ResultSummary;
 import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 import 'test_ads.dart';
