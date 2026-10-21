@@ -74,15 +74,19 @@ void main() {
       await tester.pumpWidget(_app(const PremiumBenefitsSection()));
       await tester.pump();
       expect(find.byType(PremiumBenefitsCard), findsOneWidget);
-      final s = PremiumBenefitsStrings.ja;
+      final s = kOtsu4PremiumBenefitsStrings;
       expect(find.text(s.title), findsOneWidget);
       for (final f in kOtsu4PremiumFeatures) {
         expect(find.byKey(ValueKey('premiumBenefit_${f.name}')), findsOneWidget,
             reason: f.name);
       }
+      // 苦手サマリーは無料版の案内に出る。ドリル画面を約束する文言は出さない
+      expect(find.byKey(const ValueKey('premiumBenefit_weakDrill')), findsOneWidget);
+      expect(find.text('苦手分野のサマリー'), findsOneWidget);
+      expect(find.textContaining('ドリル'), findsNothing);
+      expect(find.textContaining('集中して練習'), findsNothing);
       // 未実装の機能・core の「無料のまま」一文は出さない
       for (final f in [
-        PremiumFeature.weakDrill,
         PremiumFeature.mockExamHistory,
         PremiumFeature.customMockExam,
       ]) {
@@ -102,7 +106,7 @@ void main() {
     });
 
     test('文言に「公式」「合格保証」「未実装の機能」を含めない', () {
-      final s = PremiumBenefitsStrings.ja;
+      final s = kOtsu4PremiumBenefitsStrings;
       final texts = [
         s.title,
         for (final f in kOtsu4PremiumFeatures) ...[
@@ -111,7 +115,7 @@ void main() {
         ],
         PremiumBenefitsSection.note,
       ].join();
-      for (final w in ['公式', '合格保証', '必ず合格', 'キャラ']) {
+      for (final w in ['公式', '合格保証', '必ず合格', 'キャラ', 'ドリル']) {
         expect(texts.contains(w), isFalse, reason: w);
       }
     });
