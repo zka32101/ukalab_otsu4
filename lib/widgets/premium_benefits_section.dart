@@ -15,6 +15,7 @@ const List<PremiumFeature> kOtsu4PremiumFeatures = [
   PremiumFeature.tenMinutePlan,
   PremiumFeature.historyExport,
   PremiumFeature.readingReadAloud,
+  PremiumFeature.qualificationCharacter,
 ];
 
 /// 乙4専用の特典文言。core の日本語文言をもとに、苦手サマリー(weakDrill)だけ

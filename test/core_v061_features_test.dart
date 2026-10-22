@@ -415,6 +415,7 @@ void main() {
       expect(find.text(s.title), findsOneWidget);
       expect(find.byKey(const ValueKey('premiumBenefit_examEveMode')), findsOneWidget);
       expect(find.byKey(const ValueKey('premiumBenefit_historyExport')), findsOneWidget);
+      expect(find.byKey(const ValueKey('premiumBenefit_qualificationCharacter')), findsOneWidget);
       // このアプリで未実装の機能は載せない
       expect(find.byKey(const ValueKey('premiumBenefit_customMockExam')), findsNothing);
       expect(find.byKey(const ValueKey('premiumBenefit_mockExamHistory')), findsNothing);
