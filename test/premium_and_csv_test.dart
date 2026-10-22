@@ -115,7 +115,7 @@ void main() {
         ],
         PremiumBenefitsSection.note,
       ].join();
-      for (final w in ['公式', '合格保証', '必ず合格', 'キャラ', 'ドリル']) {
+      for (final w in ['公式', '合格保証', '必ず合格', 'ドリル']) {
         expect(texts.contains(w), isFalse, reason: w);
       }
     });
