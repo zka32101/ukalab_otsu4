@@ -32,6 +32,5 @@ android/keystore/keystore_creds.txt
 
 # ローカルでの path 参照切り替え（コミットしない）
 pubspec_overrides.yaml
-pubspec.lock
 e2e/node_modules/
 e2e/shots/
