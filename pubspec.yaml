@@ -23,7 +23,7 @@ dependencies:
   ukalab_core:
     git:
       url: https://github.com/zka32101/ukalab_core.git
-      ref: v0.83.0
+      ref: v0.86.0
 
 dev_dependencies:
   flutter_test:
@@ -36,7 +36,7 @@ flutter:
   assets:
     - assets/exam/
     - assets/experience/
-    - assets/icon/app_icon_256.png
+    - assets/icon/app_icon_foreground.png
     - assets/features/
     - assets/questions/
     - assets/readings.jsonl
@@ -49,6 +49,8 @@ flutter_launcher_icons:
   image_path: "assets/icon/app_icon.png"
   adaptive_icon_background: "#C23D16"
   adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  # 生成される ic_launcher.xml の inset(既定16%)を0%に固定。再生成しても縮小が復活しない
+  adaptive_icon_foreground_inset: 0
   min_sdk_android: 21
 
 # shared_preferences_android 2.5.0 は Android で起動時に NoSuchMethodError となり、起動画面から進まない(実機で確認)。他アプリと同じ 2.4.x に固定する。
