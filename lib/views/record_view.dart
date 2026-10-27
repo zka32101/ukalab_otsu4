@@ -280,8 +280,7 @@ class RecordView extends ConsumerWidget {
         const SizedBox(height: 12),
         Text(
           '一問一答・画期的な機能（温度の実験室・貯蔵所パズル・消火マッチング・'
-          '違反探しモード・現場の1日）の解答を合計した、暫定の記録です。'
-          '正式な出題範囲の問題データが入ったら、科目別の網羅率・正答率に切り替わります。',
+          '違反探しモード・現場の1日）の解答を合計した記録です。',
           style: theme.textTheme.bodySmall,
         ),
       ],
