@@ -6,3 +6,4 @@
 - 全問の確認ではなく**優先サンプル**。依頼文・観点・反映方法は ukalab_core の `docs/expert_review_requests.md` と `docs/expert_review_session_handover.md` を参照。
 - 反映は別PRで。記録は確認日（年月）と確認者区分のみ。氏名・所属・連絡先は記録しない。
 - 追加分(AI下書き)の確認用一覧: `physchem_class4_additions_checklist.md`(物理化学・第4類の追加80問。`ai-draft` 付き)、`multi_angle_checklist.md`(新形式36問)。
+- 確認済み(2026-10-28): 上記の追加分(物理化学40問・第4類の類別/性質40問・新形式36問、計116問)は専門家の確認がOKとなり、`ai-draft` タグを外して `sourceRef` を「専門家確認済み」に更新した(`contentVer` は 2026.10.3)。チェックリストは記録として残す。
