@@ -65,11 +65,13 @@ class _FieldDayScenarioListViewState extends ConsumerState<FieldDayScenarioListV
                 'ガソリンスタンド・化学工場の貯蔵所・危険物倉庫など、職場ごとの1日の場面で判断します。選んだあとに理由の解説が出ます。',
                 style: theme.textTheme.bodyMedium,
               ),
-              const SizedBox(height: 4),
-              Text(
-                kFieldDayScenarioDraftNotice,
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
-              ),
+              if (scenarios.any((s) => s.isAiDraft)) ...[
+                const SizedBox(height: 4),
+                Text(
+                  kFieldDayScenarioDraftNotice,
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+                ),
+              ],
               const SizedBox(height: 12),
               for (final s in scenarios) ...[
                 Card(

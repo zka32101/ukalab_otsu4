@@ -48,10 +48,13 @@ void main() {
       }
     });
 
-    test('品質ゲートに通る(AI下書きの印・自作の出典・禁止語なし)', () {
+    test('品質ゲートに通る(contentStatus は通常=キーなし・自作の出典・禁止語なし)', () {
       expect(validateFieldDayWorkplaces(_scenarios, exam: _exam), isEmpty);
       for (final s in _scenarios) {
-        expect(s.contentStatus, 'ai-draft');
+        expect(s.contentStatus, '');
+        expect(s.isAiDraft, isFalse);
+        expect(s.story.sourceRef, contains('専門家確認は不要と判断'));
+        expect(s.story.sourceRef, isNot(contains('専門家確認済み')));
         expect(s.story.source, QuestionSource.original);
         expect(s.story.sourceRef, contains('自作'));
       }
@@ -66,22 +69,22 @@ void main() {
       }
     });
 
-    test('禁止語やAI下書きの欠落を検出できる', () {
+    test('禁止語・不明な contentStatus・自作表記の欠落を検出できる', () {
       final bad = parseFieldDayWorkplaces(
         '{"scenarioId":"x","examId":"hazmat4","title":"過去問で学ぶ","description":"d",'
-        '"chapters":[{"chapterId":"a","situation":"s","choices":[{"choiceId":"1","text":"t","isRecommended":true,"feedback":"f"},{"choiceId":"2","text":"u","isRecommended":false,"feedback":"g"}]},'
+        '"contentStatus":"unknown-status","chapters":[{"chapterId":"a","situation":"s","choices":[{"choiceId":"1","text":"t","isRecommended":true,"feedback":"f"},{"choiceId":"2","text":"u","isRecommended":false,"feedback":"g"}]},'
         '{"chapterId":"b","situation":"s","choices":[{"choiceId":"1","text":"t","isRecommended":true,"feedback":"f"},{"choiceId":"2","text":"u","isRecommended":false,"feedback":"g"}]}],'
         '"source":"original","sourceRef":"出典","contentVer":"1"}',
       );
       final codes = validateFieldDayWorkplaces(bad.scenarios, exam: _exam).map((i) => i.code).toSet();
-      expect(codes, containsAll(['no-ai-draft', 'forbidden-word', 'no-self-made']));
+      expect(codes, containsAll(['unknown-content-status', 'forbidden-word', 'no-self-made']));
     });
   });
 
   group('一覧画面', () {
-    testWidgets('無料: AI下書きの表示が出て、全シナリオに鍵アイコンが付く', (tester) async {
+    testWidgets('無料: 全シナリオに鍵アイコンが付く(通常コンテンツなのでAI下書きの注記は出ない)', (tester) async {
       await _pumpList(tester, premium: false);
-      expect(find.text(kFieldDayScenarioDraftNotice), findsOneWidget);
+      expect(find.text(kFieldDayScenarioDraftNotice), findsNothing);
       expect(find.byIcon(Icons.lock_outline), findsNWidgets(3));
     });
 
@@ -94,7 +97,7 @@ void main() {
       expect(find.byType(FieldDayScenarioPlayView), findsNothing);
     });
 
-    testWidgets('プレミアム: 開けて、AI下書きの表示と判断→解説→次の章へ進める', (tester) async {
+    testWidgets('プレミアム: 開けて、判断→解説→次の章へ進める', (tester) async {
       await _pumpList(tester, premium: true);
       await tester.tap(find.text(_scenarios[0].story.title));
       for (var i = 0; i < 10; i++) {
@@ -102,7 +105,7 @@ void main() {
       }
       expect(find.byType(FieldDayScenarioPlayView), findsOneWidget);
       expect(find.text(kFieldDayPremiumNotice), findsNothing);
-      expect(find.text(kFieldDayScenarioDraftNotice), findsOneWidget);
+      expect(find.text(kFieldDayScenarioDraftNotice), findsNothing);
       expect(find.text('第1章 / 全4章'), findsOneWidget);
 
       final rec = _scenarios[0].story.chapters.first.choices.firstWhere((c) => c.isRecommended);
