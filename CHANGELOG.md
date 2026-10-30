@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-30
+
+- ukalab_core を v0.86.0 から v0.87.0 に更新(読み物の表現拡張・表の折り返し等。新機能はまだ使わない。pubspec.lock は pub get で再生成)。
+
 ## 2026-10-28
 
 - 「現場の1日」職場別シナリオ3本(`assets/experience/field_day_workplaces_hazmat4.jsonl`)から `contentStatus: ai-draft` を外した。体験コンテンツは専門家確認不要(あくまで体験)との判断による。専門家確認済みではなく、`sourceRef` は「AI下書き由来(体験コンテンツ、専門家確認は不要と判断)」。本文は変更なし。
