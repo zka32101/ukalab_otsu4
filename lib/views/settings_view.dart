@@ -1,3 +1,4 @@
+import '../feedback/feedback_tile.dart';
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:ukalab_core/ui.dart';
 import 'package:flutter/material.dart';
@@ -226,6 +227,7 @@ class SettingsView extends ConsumerWidget {
               '自分用メモ・間違いノート等）は、テーマ・リマインダー設定・試験日・ブックマーク・'
               '用語集のお気に入りを除いて、書き出し・読み込み・リセットができます。',
         ),
+        const FeedbackTile(),
         const CoreFeatureSettingsTiles(),
         if (exam != null)
           ListTile(
